@@ -12,18 +12,16 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace SerialPort_client
+namespace SerialPort_client.Frames
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Interaction logic for HistoryListPage.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class HistoryListPage : Page
     {
-
-        public MainWindow()
+        public HistoryListPage()
         {
             InitializeComponent();
         }
-
     }
 }
