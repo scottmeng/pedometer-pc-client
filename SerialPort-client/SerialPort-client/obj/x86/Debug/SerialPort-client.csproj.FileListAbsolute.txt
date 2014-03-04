@@ -1,0 +1,11 @@
+C:\Users\kaizhimeng\pedometer-pc-client\SerialPort-client\SerialPort-client\bin\Debug\SerialPort-client.exe
+C:\Users\kaizhimeng\pedometer-pc-client\SerialPort-client\SerialPort-client\bin\Debug\SerialPort-client.pdb
+C:\Users\kaizhimeng\pedometer-pc-client\SerialPort-client\SerialPort-client\obj\x86\Debug\MainWindow.baml
+C:\Users\kaizhimeng\pedometer-pc-client\SerialPort-client\SerialPort-client\obj\x86\Debug\MainWindow.g.cs
+C:\Users\kaizhimeng\pedometer-pc-client\SerialPort-client\SerialPort-client\obj\x86\Debug\App.g.cs
+C:\Users\kaizhimeng\pedometer-pc-client\SerialPort-client\SerialPort-client\obj\x86\Debug\SerialPort-client_MarkupCompile.cache
+C:\Users\kaizhimeng\pedometer-pc-client\SerialPort-client\SerialPort-client\obj\x86\Debug\SerialPort-client.g.resources
+C:\Users\kaizhimeng\pedometer-pc-client\SerialPort-client\SerialPort-client\obj\x86\Debug\SerialPort_client.Properties.Resources.resources
+C:\Users\kaizhimeng\pedometer-pc-client\SerialPort-client\SerialPort-client\obj\x86\Debug\SerialPort-client.csproj.GenerateResource.Cache
+C:\Users\kaizhimeng\pedometer-pc-client\SerialPort-client\SerialPort-client\obj\x86\Debug\SerialPort-client.exe
+C:\Users\kaizhimeng\pedometer-pc-client\SerialPort-client\SerialPort-client\obj\x86\Debug\SerialPort-client.pdb
