@@ -1,0 +1,136 @@
+/*
+	This is just a fast prototype
+ */	
+
+#include <stdio.h>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <sstream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+vector<int> timestamps;
+vector<int> x_acc;
+vector<int> y_acc;
+vector<int> z_acc;
+
+vector<int> timestamps_filtered;
+vector<int> x_acc_filtered;
+vector<int> y_acc_filtered;
+vector<int> z_acc_filtered;
+
+vector<int> x_thresholds;
+vector<int> y_thresholds;
+vector<int> z_thresholds;
+
+vector<int> step_timestamps;
+
+#define FILTER_LENGTH 8
+#define WINDOW_LENGTH 40
+
+
+void lowPassFilter() {
+	int index, i;
+	int avg_x, avg_y, avg_z;
+
+	for(index = 0; index < (timestamps.size() - FILTER_LENGTH); index ++) {
+		avg_x = 0;
+		avg_y = 0;
+		avg_z = 0;
+
+		for(i = index; i < (index + FILTER_LENGTH); i ++) {
+			avg_x += x_acc[i];
+			avg_y += y_acc[i];
+			avg_z += z_acc[i];
+		}
+
+		avg_x /= FILTER_LENGTH;
+		avg_y /= FILTER_LENGTH;
+		avg_z /= FILTER_LENGTH;
+
+		timestamps_filtered.push_back(timestamps[index]);
+		x_acc_filtered.push_back(avg_x);
+		y_acc_filtered.push_back(avg_y);
+		z_acc_filtered.push_back(avg_z);
+	}
+}
+
+void getThresholds() {
+	int index, x_threshold, y_threshold, z_threshold;
+	vector<int>::iterator begin, end;
+
+	for(index = 0; index < timestamps_filtered.size(); index += WINDOW_LENGTH) {
+		begin = x_acc_filtered.begin() + index;
+		end = begin + WINDOW_LENGTH - 1;
+		x_threshold = (*min_element(begin, end) + *max_element(begin, end)) / 2;
+
+		begin = y_acc_filtered.begin() + index;
+		end = begin + WINDOW_LENGTH - 1;
+		y_threshold = (*min_element(begin, end) + *max_element(begin, end)) / 2;
+
+		begin = z_acc_filtered.begin() + index;
+		end = begin + WINDOW_LENGTH - 1;
+		z_threshold = (*min_element(begin, end) + *max_element(begin, end)) / 2;
+
+		x_thresholds.push_back(x_threshold);
+		y_thresholds.push_back(y_threshold);
+		z_thresholds.push_back(z_threshold);
+	}
+}
+
+// this is just using x-axis data
+void countSteps() {
+	int index;
+
+	for(index = 0; index < timestamps_filtered.size(); index ++) {
+		if (x_acc_filtered[index] > x_thresholds[index / WINDOW_LENGTH]
+			&& x_acc_filtered[index + 1] < x_thresholds[index / WINDOW_LENGTH]) {
+			step_timestamps.push_back(timestamps_filtered[index]);
+		}
+	}
+}
+
+void log(string info) {
+	cout << info << endl;
+}
+
+int main() {
+	int timestamp, x, y, z, index;
+	string data;
+	ifstream dataFile;
+	stringstream ss;
+
+	dataFile.open("KAIZHI_5.txt");
+
+	while(getline(dataFile, data)) {
+		int size = sscanf(data.c_str(), "%d, %d, %d, %d", &timestamp, &x, &y, &z);
+
+		if(size != 4) {
+			exit(0);
+		}
+
+		timestamps.push_back(timestamp);
+		x_acc.push_back(x);
+		y_acc.push_back(y);
+		z_acc.push_back(z);
+	}
+
+	dataFile.close();
+
+	lowPassFilter();
+	
+	getThresholds();
+
+	countSteps();
+
+	for(index = 0; index < step_timestamps.size(); index ++) {
+		cout << step_timestamps[index] << endl;
+	}
+
+	cout << "Number of steps is: " << step_timestamps.size() << endl;
+
+	return 0;
+}
