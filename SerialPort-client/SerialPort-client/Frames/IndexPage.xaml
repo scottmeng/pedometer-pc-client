@@ -1,0 +1,14 @@
+﻿<Page x:Class="SerialPort_client.Frames.IndexPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      mc:Ignorable="d" 
+      d:DesignHeight="300" d:DesignWidth="300"
+	Title="IndexPage">
+
+    <Grid>
+        <Button Content="Connect Pedometer" Height="130" HorizontalAlignment="Left" Margin="12,12,0,0" Name="btnConnect" VerticalAlignment="Top" Width="276" Click="btnConnect_Click" />
+        <Button Content="View History" Height="140" HorizontalAlignment="Left" Margin="12,148,0,0" Name="btnView" VerticalAlignment="Top" Width="276" Click="btnView_Click" />
+    </Grid>
+</Page>
