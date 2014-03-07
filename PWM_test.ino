@@ -8,6 +8,8 @@ File dataFile;
 char fileName[64];
 char formattedData[64];
 
+char userName[25];
+
 word checksum = 0;
 byte highcheck = 0;
 byte lowcheck = 0;
@@ -32,6 +34,15 @@ int RXLED = 17;
 int PWMPORT = 5;
 int SD_CS = 10;
 
+// state byte indicating the current working 
+// state of pedometer
+// 0x00 -- uninitialized
+// 0x01 -- initialized (but not recording)
+// 0x10 -- connected
+// 0x02 -- recording
+
+byte state = 0x00;
+
 // alarm function
 // TODO break it into two functions which will
 // be called to change frequency
@@ -48,13 +59,13 @@ void setup()
   // for debug use only
   delay(1000);
   
-  pinMode(RXLED, OUTPUT);  // Set RX LED as an output
-  pinMode(SD_CS, OUTPUT);  // Set pin 18 as output (SD card CS)
+  pinMode(RXLED, OUTPUT);                 // Set RX LED as an output
+  pinMode(SD_CS, OUTPUT);                 // Set pin 18 as output (SD card CS)
  
-  Serial.begin(9600); //This pipes to the serial monitor
+  Serial.begin(9600);                     // This pipes to the serial monitor
   Serial.println("USB serial connection established.");
   
-  Serial1.begin(9600);
+  Serial1.begin(9600);                    // Set up fingerprint sensor interface
  
   // Initialize I2C interface
   Wire.begin();
@@ -62,16 +73,9 @@ void setup()
     
   if (!SD.begin(SD_CS)) {
     Serial.println("SD card SPI initialization failed!");
-    //return;
+    return;
   }
   Serial.println("SD card SPI connection established.");
-  
-  if(!createFile("kaizhi")) {
-    Serial.println("SD card create data file failed!");
-    //return;
-  }
-  Serial.print("SD card data file created at: ");
-  Serial.println(fileName);
  
   // Put the ADXL345 into +/- 4G range by writing the value 0x01 to the DATA_FORMAT register.
   writeTo(DATA_FORMAT, 0x01);
@@ -82,26 +86,108 @@ void setup()
 
 void loop()
 {
- readAccel();
- writeData(millis(), formattedData);
- 
- command = 0x12;
- parameter = 0x01;
- //sendCommandToFingerPrint();
+  checkConnection();                         // check connection and change state into "connected"
+  
+  if (state == 0x00)                         // uninitialized
+  {
+    if (isInitialized()) 
+    {
+      state = 0x01;
+    }
+  }
+  else if (state == 0x01)                    // initialized not recording
+  {
+     byte id = getUserId();
+     Serial.println(id);
+     if (getUserId())
+     {       
+       if(!createFile(id)) {
+         Serial.println("SD card create data file failed!");
+         return;
+       }
+       Serial.print("SD card data file created at: ");
+       Serial.println(fileName);
+       
+       state = 0x02;                         // start recording
+     }
+  }
+  else if (state == 0x02)                    // recording
+  {
+    readAccel();
+    writeData(millis(), formattedData);
+     
+    command = 0x12;
+    parameter = 0x01;
+    //sendCommandToFingerPrint();
+  }
+  else if (state == 0x10)                     // connected
+  {
+    if (isInitialized())
+    {
+      transferNewData();
+    }
+    else
+    {
+      initialize();
+    }
+  }
 }
 
-boolean createFile(char userName[])
+void checkConnection()
+{
+  if(Serial.available() > 0 && Serial.read() == 0x61)
+  {
+    state = 0x10;                // change the state into "connected"
+    Serial.write(0x62);
+  }
+}
+
+void transferNewData()
+{
+  
+}
+
+char getUserId()
+{
+  return 1;
+}
+
+void initialize()
+{
+  dataFile = SD.open("profile.txt", FILE_WRITE);
+  Serial.println("profile.txt created! Device initialized");
+  
+  dataFile.println("1,Scott,0");
+  
+  state = 0x01;
+  dataFile.close();
+}
+
+bool isInitialized()
+{
+  if (SD.exists("profile.txt"))
+  {
+    Serial.println("Device is initialized");
+    return true;
+  }
+  return false;
+}
+
+boolean createFile(byte userId)
 {
   int index = 0;
-  
+
   do 
   {
-    sprintf(fileName, "%s_%d.txt", userName, index);
+    sprintf(fileName, "%d_%d.txt", userId, index);
     Serial.println(index);
     index += 1;
   } while (SD.exists(fileName));
 
+  Serial.println(fileName);
   dataFile = SD.open(fileName, FILE_WRITE);
+  
+  delay(1000);
   
   if(dataFile) 
   {

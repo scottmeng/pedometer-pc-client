@@ -26,10 +26,13 @@ vector<int> x_thresholds;
 vector<int> y_thresholds;
 vector<int> z_thresholds;
 
-vector<int> step_timestamps;
+vector<int> step_timestamps_x;
+vector<int> step_timestamps_y;
+vector<int> step_timestamps_z;
 
 #define FILTER_LENGTH 8
 #define WINDOW_LENGTH 40
+#define DATA_DIR "KAIZHI_7.txt"
 
 
 void lowPassFilter() {
@@ -88,7 +91,17 @@ void countSteps() {
 	for(index = 0; index < timestamps_filtered.size(); index ++) {
 		if (x_acc_filtered[index] > x_thresholds[index / WINDOW_LENGTH]
 			&& x_acc_filtered[index + 1] < x_thresholds[index / WINDOW_LENGTH]) {
-			step_timestamps.push_back(timestamps_filtered[index]);
+			step_timestamps_x.push_back(timestamps_filtered[index]);
+		}
+
+		if (y_acc_filtered[index] > y_thresholds[index / WINDOW_LENGTH]
+			&& y_acc_filtered[index + 1] < y_thresholds[index / WINDOW_LENGTH]) {
+			step_timestamps_y.push_back(timestamps_filtered[index]);
+		}
+
+		if (z_acc_filtered[index] > z_thresholds[index / WINDOW_LENGTH]
+			&& z_acc_filtered[index + 1] < z_thresholds[index / WINDOW_LENGTH]) {
+			step_timestamps_z.push_back(timestamps_filtered[index]);
 		}
 	}
 }
@@ -103,7 +116,7 @@ int main() {
 	ifstream dataFile;
 	stringstream ss;
 
-	dataFile.open("KAIZHI_5.txt");
+	dataFile.open(DATA_DIR);
 
 	while(getline(dataFile, data)) {
 		int size = sscanf(data.c_str(), "%d, %d, %d, %d", &timestamp, &x, &y, &z);
@@ -126,11 +139,17 @@ int main() {
 
 	countSteps();
 
-	for(index = 0; index < step_timestamps.size(); index ++) {
+	/*
+
+	for(index = 0; index < step_timestamps_x.size(); index ++) {
 		cout << step_timestamps[index] << endl;
 	}
 
-	cout << "Number of steps is: " << step_timestamps.size() << endl;
+	*/
+
+	cout << "Number of steps counted in x-axis is: " << step_timestamps_x.size() << endl;
+	cout << "Number of steps counted in y-axis is: " << step_timestamps_y.size() << endl;
+	cout << "Number of steps counted in z-axis is: " << step_timestamps_z.size() << endl;
 
 	return 0;
 }
