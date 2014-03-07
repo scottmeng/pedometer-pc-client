@@ -8,6 +8,6 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("connect-device.png")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("users.sdf")]
 
 
