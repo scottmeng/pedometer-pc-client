@@ -26,3 +26,7 @@ C:\Users\Kaizhi\pedometer-pc-client\SerialPort-client\SerialPort-client\obj\x86\
 C:\Users\Kaizhi\pedometer-pc-client\SerialPort-client\SerialPort-client\obj\x86\Debug\Frames\ConnectPage.g.cs
 C:\Users\Kaizhi\pedometer-pc-client\SerialPort-client\SerialPort-client\obj\x86\Debug\Frames\HistoryListPage.baml
 C:\Users\Kaizhi\pedometer-pc-client\SerialPort-client\SerialPort-client\obj\x86\Debug\Frames\HistoryListPage.g.cs
+C:\Users\Kaizhi\pedometer-pc-client\SerialPort-client\SerialPort-client\bin\Debug\SerialPort-client.exe.config
+C:\Users\Kaizhi\pedometer-pc-client\SerialPort-client\SerialPort-client\obj\x86\Debug\SerialPort-client.csprojResolveAssemblyReference.cache
+C:\Users\Kaizhi\pedometer-pc-client\SerialPort-client\SerialPort-client\obj\x86\Debug\SerialPort-client_Content.g.cs
+C:\Users\Kaizhi\pedometer-pc-client\SerialPort-client\SerialPort-client\bin\Debug\exerciseData.sdf
