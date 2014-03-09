@@ -15,6 +15,8 @@ using System.Windows.Shapes;
 using System.Data;
 using System.Data.SqlServerCe;
 
+using SerialPort_client.Sources;
+
 namespace SerialPort_client.Frames
 {
     /// <summary>
@@ -31,6 +33,7 @@ namespace SerialPort_client.Frames
             // So it could be coolConnectionString or something like that.
             string conString = Properties.Settings.Default.exerciseDataConnectionString;
 
+            /*
             // Open the connection using the connection string.
             using (SqlCeConnection con = new SqlCeConnection(conString))
             {
@@ -45,20 +48,29 @@ namespace SerialPort_client.Frames
                     com.ExecuteNonQuery();
                 }
             }
-
+            */
 
             // Open the connection using the connection string.
             using (SqlCeConnection newCon = new SqlCeConnection(conString))
             {
                 newCon.Open();
                 // Read in all values in the table.
-                using (SqlCeCommand com = new SqlCeCommand("SELECT age FROM Users", newCon))
+                using (SqlCeCommand com = new SqlCeCommand("SELECT id,name,age,height FROM Users", newCon))
                 {
+                    List<User> users = new List<User>();
                     SqlCeDataReader reader = com.ExecuteReader();
                     while (reader.Read())
                     {
-                        int num = reader.GetInt32(0);
+                        int id = reader.GetInt32(0);
+                        string name = reader.GetString(1);
+                        int age = reader.GetInt32(2);
+                        int height = reader.GetInt32(3);
+
+                        User user = new User(id, name, age, height);
+                        users.Add(user);
                     }
+
+                    this.lstBoxUser.ItemsSource = users;
                 }
             }
             

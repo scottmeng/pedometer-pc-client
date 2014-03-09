@@ -8,6 +8,19 @@
 	Title="HistoryListPage">
 
     <Grid>
-        
+        <ListBox Height="103" HorizontalAlignment="Left" Margin="12,12,0,0" Name="lstBoxUser" VerticalAlignment="Top" Width="276">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid Width="200">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="100" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="{Binding Name}" Grid.Column="0"/>
+                        <TextBlock Text="{Binding Age}" Grid.Column="1"/>
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
     </Grid>
 </Page>
