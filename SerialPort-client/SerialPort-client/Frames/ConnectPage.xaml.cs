@@ -27,7 +27,7 @@ namespace SerialPort_client.Frames
         public ConnectPage()
         {
             InitializeComponent();
-
+            /*
             string portName = checkPedometerConnection();
             if (portName != null)
             {
@@ -36,7 +36,8 @@ namespace SerialPort_client.Frames
                 newPort.Value = portName;
                 portsAvailable.Items.Add(newPort);
                 btnStart.IsEnabled = true;
-            }
+            }*/
+            getAvailablePorts();
         }
 
         private void getAvailablePorts()

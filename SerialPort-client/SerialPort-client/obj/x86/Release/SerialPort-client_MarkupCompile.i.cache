@@ -4,17 +4,17 @@
 winexe
 C#
 .cs
-C:\Users\Kaizhi\pedometer-pc-client\SerialPort-client\SerialPort-client\obj\x86\Release\
+C:\Users\kaizhimeng\pedometer-pc-client\SerialPort-client\SerialPort-client\obj\x86\Release\
 SerialPort_client
 none
 false
 TRACE
-C:\Users\Kaizhi\pedometer-pc-client\SerialPort-client\SerialPort-client\App.xaml
-32136949563
+C:\Users\kaizhimeng\pedometer-pc-client\SerialPort-client\SerialPort-client\App.xaml
+41833590837
 
-91306408753
+10-1411550984
 12-1381780322
-Frames\ConnectPage.xaml;Frames\indexpage.xaml;MainWindow.xaml;
+Frames\ConnectPage.xaml;Frames\HistoryListPage.xaml;Frames\IndexPage.xaml;MainWindow.xaml;
 
 False
 
