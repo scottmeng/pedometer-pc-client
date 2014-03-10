@@ -38,6 +38,7 @@ namespace SerialPort_client.Frames
                 btnStart.IsEnabled = true;
             }*/
             getAvailablePorts();
+            checkPedometerConnection();
         }
 
         private void getAvailablePorts()
@@ -57,7 +58,8 @@ namespace SerialPort_client.Frames
 
         private string checkPedometerConnection()
         {
-            string[] portNames = SerialPort.GetPortNames();
+            //string[] portNames = SerialPort.GetPortNames();
+            string[] portNames = {"COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8"};
             SerialPort port;
 
             foreach (string portName in portNames)

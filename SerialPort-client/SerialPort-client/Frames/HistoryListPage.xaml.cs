@@ -28,11 +28,8 @@ namespace SerialPort_client.Frames
         {
             InitializeComponent();
 
-            // Retrieve the connection string from the settings file.
-            // Your connection string name will end in "ConnectionString"
-            // So it could be coolConnectionString or something like that.
-            string conString = Properties.Settings.Default.exerciseDataConnectionString;
-            conString = "Data Source=C:\\Users\\Kaizhi\\exerciseData.sdf;Password=admin;Persist Security Info=True";
+            //string conString = Properties.Settings.Default.exerciseDataConnectionString;
+            string conString = "Data Source=C:\\Users\\Kaizhi\\exerciseData.sdf;Password=admin;Persist Security Info=True";
 
             /*
             // Open the connection using the connection string.
