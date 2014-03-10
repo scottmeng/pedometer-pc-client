@@ -11,6 +11,7 @@ namespace SerialPort_client.Sources
         public int Age { get; set; }
         public int Height { get; set; }
         public int Id { get; set; }
+        public bool hasNewData { get; set; }
 
         public User(int id, string name, int age, int height)
         {
@@ -18,6 +19,8 @@ namespace SerialPort_client.Sources
             this.Age = age;
             this.Height = height;
             this.Id = id;
+
+            this.hasNewData = false;
         }
     }
 }
