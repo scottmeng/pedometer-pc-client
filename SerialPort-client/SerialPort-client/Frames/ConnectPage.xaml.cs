@@ -23,44 +23,39 @@ namespace SerialPort_client.Frames
     public partial class ConnectPage : Page
     {
         private SerialPort port;
+        private bool connected = false;
 
         public ConnectPage()
         {
             InitializeComponent();
-            /*
-            string portName = checkPedometerConnection();
-            if (portName != null)
-            {
-                ComboboxItem newPort = new ComboboxItem();
-                newPort.Text = portName;
-                newPort.Value = portName;
-                portsAvailable.Items.Add(newPort);
-                btnStart.IsEnabled = true;
-            }*/
-            getAvailablePorts();
-            checkPedometerConnection();
+
+            
+            makeConnection();
         }
 
-        private void getAvailablePorts()
+        private void makeConnection()
         {
-            ComboboxItem newPort;
-            string[] ports = SerialPort.GetPortNames();
+            this.txtBlkStatus.Text = "Connecting";
+            this.txtBlkStatus.Foreground = Brushes.Orange;
 
-            foreach (string port in ports)
+            connected = checkPedometerConnection();
+
+            if (connected)
             {
-                newPort = new ComboboxItem();
-                newPort.Text = port;
-                newPort.Value = port;
-                portsAvailable.Items.Add(newPort);
+                this.txtBlkStatus.Text = "Connected through " + port.PortName;
+                this.txtBlkStatus.Foreground = Brushes.Green;
             }
-
+            else
+            {
+                this.txtBlkStatus.Text = "Not connected";
+                this.txtBlkStatus.Foreground = Brushes.Red;
+            }
         }
 
-        private string checkPedometerConnection()
+        // send a request to every available COM port
+        private bool checkPedometerConnection()
         {
-            //string[] portNames = SerialPort.GetPortNames();
-            string[] portNames = {"COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8"};
-            SerialPort port;
+            string[] portNames = SerialPort.GetPortNames();
 
             foreach (string portName in portNames)
             {
@@ -68,11 +63,19 @@ namespace SerialPort_client.Frames
 
                 try
                 {
-                    port.Open();
+                      port.Open();
 
                     if (port.IsOpen)
                     {
-                        return portName;
+                        port.Write("a");
+                        port.ReadTimeout = 2000;
+                        this.btnStart.IsEnabled = false;
+                        return true;
+                        if (port.ReadChar() == 'b')
+                        {
+                            port.DataReceived += new SerialDataReceivedEventHandler(port_DataReceived);
+                            return true;
+                        }
                     }
                 }
                 catch
@@ -80,29 +83,44 @@ namespace SerialPort_client.Frames
                     continue;
                 }
             }
-            return null;
+
+            return false;
         }
 
         private void btnStart_Click(object sender, RoutedEventArgs e)
         {
-            port.PortName = portsAvailable.SelectedValue.ToString();
-            port.BaudRate = 9600;
-
-            port.Open();
-            if (port.IsOpen)
-            {
-                btnStart.IsEnabled = false;
-                btnStop.IsEnabled = true;
-            }
+            makeConnection();
         }
 
-        private void btnStop_Click(object sender, RoutedEventArgs e)
+        void comPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
-            if (port.IsOpen)
+            //determine the mode the user selected (binary/string)
+            switch (CurrentTransmissionType)
             {
-                port.Close();
-                btnStart.IsEnabled = true;
-                btnStop.IsEnabled = false;
+                //user chose string
+                case TransmissionType.Text:
+                    //read data waiting in the buffer
+                    string msg = comPort.ReadExisting();
+                    //display the data to the user
+                    DisplayData(MessageType.Incoming, msg + "\n");
+                    break;
+                //user chose binary
+                case TransmissionType.Hex:
+                    //retrieve number of bytes in the buffer
+                    int bytes = comPort.BytesToRead;
+                    //create a byte array to hold the awaiting data
+                    byte[] comBuffer = new byte[bytes];
+                    //read the data and store it
+                    comPort.Read(comBuffer, 0, bytes);
+                    //display the data to the user
+                    DisplayData(MessageType.Incoming, ByteToHex(comBuffer) + "\n");
+                    break;
+                default:
+                    //read data waiting in the buffer
+                    string str = comPort.ReadExisting();
+                    //display the data to the user
+                    DisplayData(MessageType.Incoming, str + "\n");
+                    break;
             }
         }
     }
