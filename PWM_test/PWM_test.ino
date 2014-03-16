@@ -9,6 +9,7 @@ char fileName[64];
 char formattedData[64];
 
 char userName[25];
+char strBuff[64];
 
 word checksum = 0;
 byte highcheck = 0;
@@ -126,7 +127,7 @@ void loop()
   {
     if (readPCCommand())
     {
-      switch(pcCommand) 
+      switch (pcCommand) 
       {
         case 'd':
           transferNewData();
@@ -142,6 +143,28 @@ void loop()
   }
 }
 
+/*
+ * add a new user entry to profile.txt
+ * busy-wait for the PC client to transfer
+ * user id
+ */
+void addNewUser()
+{
+  while (!Serial.available())
+
+  byte uid = Serial.read();
+  
+  dataFile = SD.open("profile.txt", FILE_WRITE);
+  sprintf(strBuff, "%d,0", uid);
+  dataFile.println(strBuff);
+  dataFile.close();
+}
+
+/*
+ * read one byte off serial port 
+ * if successful, return true
+ * if not, return false
+ */
 bool readPCCommand()
 {
   if (Serial.available())
@@ -209,7 +232,7 @@ void transferNewData()
  * user name is specified in
  * index is specified in 
  * data format:
- * 
+ *  
  */
 bool transferFileData(byte userId, byte index)
 {
@@ -262,6 +285,7 @@ void updateProfile(byte userid, byte index)
     dummy = dataFile.read();
     dummy = dataFile.read();
   }
+  dataFile.close();
 }
 
 /*
@@ -304,8 +328,6 @@ void initialize()
   dataFile.println("1,0");
   dataFile.println("2,0");
 
-  addNewUser();
-  
   state = 0x01;
   dataFile.close();
 }
