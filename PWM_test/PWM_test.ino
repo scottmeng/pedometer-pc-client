@@ -19,6 +19,8 @@ byte parameter = 0;
 byte highbyte = 0;
 byte lowbyte = 0;
 
+byte pcCommand;
+
 // address declaration
 char POWER_CTL = 0x2D;	//Power Control Register
 char DATA_FORMAT = 0x31;
@@ -37,7 +39,7 @@ int SD_CS = 10;
 // state byte indicating the current working 
 // state of pedometer
 // 0x00 -- uninitialized
-// 0x01 -- initialized (but not recording)
+// 0x01 -- initialized
 // 0x10 -- connected
 // 0x02 -- recording
 
@@ -122,31 +124,172 @@ void loop()
   }
   else if (state == 0x10)                     // connected
   {
+    if (readPCCommand())
+    {
+      switch(pcCommand) 
+      {
+        case 'd':
+          transferNewData();
+          break;
+        case 'a':
+          addNewUser();
+          break;
+        case 'i':
+          initialize();
+          break;
+      }
+    }
+  }
+}
+
+bool readPCCommand()
+{
+  if (Serial.available())
+  {
+    pcCommand = Serial.read();
+    return true;
+  }
+  return false;
+}
+
+/*
+ * check if device is connected with PC client
+ * if a character 'a' is received
+ * the device will return a character 
+ * indicating the status of device
+ * 'o' for "old"
+ * 'n' for "new"
+ */
+void checkConnection()
+{
+  if (Serial.available() > 0 && Serial.read() == 0x61)
+  {
+    state = 0x10;                // change the state into "connected"
     if (isInitialized())
     {
-      transferNewData();
+      Serial.write('o');
     }
     else
     {
-      initialize();
+      Serial.write('n');
     }
   }
 }
 
-void checkConnection()
+/*
+ * transfer all newly-recorded data
+ * check profile.txt for indices of new data files
+ * loop through all users with new data
+ * and transfer data from each new data file
+ */
+void transferNewData()
 {
-  if(Serial.available() > 0 && Serial.read() == 0x61)
+  byte dummy, userid, index;
+
+  dataFile = open("profile.txt");
+  while (dataFile.available())
   {
-    state = 0x10;                // change the state into "connected"
-    Serial.write(0x62);
+    userid = dataFile.read();
+    dummy = dataFile.read();
+    index = dataFile.read();
+    dummy = dataFile.read();
+    dummy = dataFile.read();
+
+    while (transferFileData(userid, index))
+    {
+      index += 1;
+    }
+
+    updateProfile(userid, index);
   }
 }
 
-void transferNewData()
+/*
+ * transfer data from one data file
+ * user name is specified in
+ * index is specified in 
+ * data format:
+ * 
+ */
+bool transferFileData(byte userId, byte index)
 {
-  
+  sprintf(fileName, "%d_%d.txt", userId, index);
+
+  if (SD.exists(fileName))
+  {
+    notifyFileStart();
+    Serial.write(userid);
+    Serial.write(index);
+
+    dataFile = SD.open(fileName);
+    while (dataFile.available())
+    {
+      Serial.write(dataFile.read());
+    }
+    dataFile.close();
+
+    notifyFileEnd();
+
+    return true;
+  }
+
+  return false;
 }
 
+/*
+ * update the profile txt file to reflect
+ * which files have been synced to PC
+ */
+void updateProfile(byte userid, byte index)
+{
+  byte uid, dummy;
+
+  dataFile = SD.open("profile.txt", FILE_WRITE);
+  dataFile.seek(0);
+  while (dataFile.available())
+  {
+    uid = dataFile.read();
+    dummy = dataFile.read();
+
+    if (uid == userid)
+    {
+      dataFile.write(index);
+    }
+    else 
+    {
+      dummy = dataFile.read();
+    }
+    dummy = dataFile.read();
+    dummy = dataFile.read();
+  }
+}
+
+/*
+ * indicate the start of a data file transfer
+ * two consecutive character '+' are transferred
+ * followed by one byte of user id and one byte of index
+ */
+void notifyFileStart()
+{
+  Serial.write(0x2B);
+  Serial.write(0x2B);
+}
+
+/*
+ * indicate the end of a data file transfer
+ * two consecutive character '-' are transferred
+ * after all data bytes are being transferred
+ */
+void notifyFileEnd()
+{
+  Serial.write(0x2D);
+  Serial.write(0x2D);
+}
+
+/*
+ * identify the user through fingerprint
+ * return the user id in one byte
+ */
 char getUserId()
 {
   return 1;
@@ -157,7 +300,11 @@ void initialize()
   dataFile = SD.open("profile.txt", FILE_WRITE);
   Serial.println("profile.txt created! Device initialized");
   
-  dataFile.println("1,Scott,0");
+  // for debug
+  dataFile.println("1,0");
+  dataFile.println("2,0");
+
+  addNewUser();
   
   state = 0x01;
   dataFile.close();
@@ -165,7 +312,7 @@ void initialize()
 
 bool isInitialized()
 {
-  if (SD.exists("profile.txt"))
+  if (SD.exists("profile.txt") && (SD.open("profile.txt").size() > 0))
   {
     Serial.println("Device is initialized");
     return true;
@@ -218,7 +365,6 @@ void readAccel() {
   int z = (((int)_buff[5]) << 8) | _buff[4];
   
   sprintf(formattedData, "%d, %d, %d", x, y, z);
-  //Serial.println(formattedData);
 }
 
 void writeTo(byte address, byte val) {
