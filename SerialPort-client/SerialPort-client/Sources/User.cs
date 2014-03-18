@@ -9,14 +9,16 @@ namespace SerialPort_client.Sources
     {
         public string Name { get; set; }
         public int Age { get; set; }
+        public string Gender { get; set; }
         public int Height { get; set; }
         public int Id { get; set; }
         public bool hasNewData { get; set; }
 
-        public User(int id, string name, int age, int height)
+        public User(int id, string name, string gender, int age, int height)
         {
             this.Name = name;
             this.Age = age;
+            this.Gender = gender;
             this.Height = height;
             this.Id = id;
 
