@@ -23,14 +23,14 @@ byte lowbyte = 0;
 byte pcCommand;
 
 // address declaration
-char POWER_CTL = 0x2D;	//Power Control Register
+char POWER_CTL = 0x2D;  //Power Control Register
 char DATA_FORMAT = 0x31;
-char DATAX0 = 0x32;	//X-Axis Data 0
-char DATAX1 = 0x33;	//X-Axis Data 1
-char DATAY0 = 0x34;	//Y-Axis Data 0
-char DATAY1 = 0x35;	//Y-Axis Data 1
-char DATAZ0 = 0x36;	//Z-Axis Data 0
-char DATAZ1 = 0x37;	//Z-Axis Data 1
+char DATAX0 = 0x32; //X-Axis Data 0
+char DATAX1 = 0x33; //X-Axis Data 1
+char DATAY0 = 0x34; //Y-Axis Data 0
+char DATAY1 = 0x35; //Y-Axis Data 1
+char DATAZ0 = 0x36; //Z-Axis Data 0
+char DATAZ1 = 0x37; //Z-Axis Data 1
 
 // Pin declaration
 int RXLED = 17;
@@ -150,9 +150,10 @@ void loop()
  */
 void addNewUser()
 {
+  byte uid;
   while (!Serial.available())
 
-  byte uid = Serial.read();
+  uid = Serial.read();
   
   dataFile = SD.open("profile.txt", FILE_WRITE);
   sprintf(strBuff, "%d,0", uid);
@@ -207,9 +208,10 @@ void checkConnection()
  */
 void transferNewData()
 {
+  Serial.println("transferNewData");
   byte dummy, userid, index;
 
-  dataFile = open("profile.txt");
+  dataFile = SD.open("profile.txt");
   while (dataFile.available())
   {
     userid = dataFile.read();
@@ -241,7 +243,7 @@ bool transferFileData(byte userId, byte index)
   if (SD.exists(fileName))
   {
     notifyFileStart();
-    Serial.write(userid);
+    Serial.write(userId);
     Serial.write(index);
 
     dataFile = SD.open(fileName);
@@ -325,8 +327,14 @@ void initialize()
   Serial.println("profile.txt created! Device initialized");
   
   // for debug
-  dataFile.println("1,0");
-  dataFile.println("2,0");
+  dataFile.write(byte(1));
+  dataFile.write(',');
+  dataFile.write(byte(0));
+  dataFile.write('\n');
+  dataFile.write(byte(2));
+  dataFile.write(',');
+  dataFile.write(byte(0));
+  dataFile.write('\n');
 
   state = 0x01;
   dataFile.close();
