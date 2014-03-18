@@ -23,41 +23,40 @@ namespace SerialPort_client.Frames
     public partial class ConnectPage : Page
     {
         private SerialPort port;
+        private bool connected = false;
+        private bool isTransferringByte = false;
 
         public ConnectPage()
         {
             InitializeComponent();
 
-            string portName = checkPedometerConnection();
-            if (portName != null)
-            {
-                ComboboxItem newPort = new ComboboxItem();
-                newPort.Text = portName;
-                newPort.Value = portName;
-                portsAvailable.Items.Add(newPort);
-                btnStart.IsEnabled = true;
-            }
+            
+            makeConnection();
         }
 
-        private void getAvailablePorts()
+        private void makeConnection()
         {
-            ComboboxItem newPort;
-            string[] ports = SerialPort.GetPortNames();
+            this.txtBlkStatus.Text = "Connecting";
+            this.txtBlkStatus.Foreground = Brushes.Orange;
 
-            foreach (string port in ports)
+            connected = checkPedometerConnection();
+
+            if (connected)
             {
-                newPort = new ComboboxItem();
-                newPort.Text = port;
-                newPort.Value = port;
-                portsAvailable.Items.Add(newPort);
+                this.txtBlkStatus.Text = "Connected through " + port.PortName;
+                this.txtBlkStatus.Foreground = Brushes.Green;
             }
-
+            else
+            {
+                this.txtBlkStatus.Text = "Not connected";
+                this.txtBlkStatus.Foreground = Brushes.Red;
+            }
         }
 
-        private string checkPedometerConnection()
+        // send a request to every available COM port
+        private bool checkPedometerConnection()
         {
             string[] portNames = SerialPort.GetPortNames();
-            SerialPort port;
 
             foreach (string portName in portNames)
             {
@@ -65,11 +64,19 @@ namespace SerialPort_client.Frames
 
                 try
                 {
-                    port.Open();
+                      port.Open();
 
                     if (port.IsOpen)
                     {
-                        return portName;
+                        port.Write("a");
+                        port.ReadTimeout = 2000;
+                        this.btnStart.IsEnabled = false;
+                        return true;
+                        if (port.ReadChar() == 'b')
+                        {
+                            port.DataReceived += new SerialDataReceivedEventHandler(port_DataReceived);
+                            return true;
+                        }
                     }
                 }
                 catch
@@ -77,29 +84,28 @@ namespace SerialPort_client.Frames
                     continue;
                 }
             }
-            return null;
+
+            return false;
         }
 
         private void btnStart_Click(object sender, RoutedEventArgs e)
         {
-            port.PortName = portsAvailable.SelectedValue.ToString();
-            port.BaudRate = 9600;
-
-            port.Open();
-            if (port.IsOpen)
-            {
-                btnStart.IsEnabled = false;
-                btnStop.IsEnabled = true;
-            }
+            makeConnection();
         }
 
-        private void btnStop_Click(object sender, RoutedEventArgs e)
+        // event handler for receiving data
+        void port_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
-            if (port.IsOpen)
+            if (isTransferringByte)
             {
-                port.Close();
-                btnStart.IsEnabled = true;
-                btnStop.IsEnabled = false;
+                int bytes = port.BytesToRead;
+
+                byte[] comBuffer = new byte[bytes];
+                port.Read(comBuffer, 0, bytes);
+            }
+            else
+            {
+                string msg = port.ReadExisting();
             }
         }
     }

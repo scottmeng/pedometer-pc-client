@@ -8,10 +8,8 @@
 	Title="ConnectPage">
 
     <Grid>
-        <Button IsEnabled="false" Content="Start" Height="50" HorizontalAlignment="Left" Margin="12,12,0,0" Name="btnStart" VerticalAlignment="Top" Width="59" Click="btnStart_Click" />
-        <Button Content="Stop" Height="50" HorizontalAlignment="Left" Margin="221,12,0,0" Name="btnStop" VerticalAlignment="Top" Width="67" Click="btnStop_Click" />
-        <TextBlock Height="220" HorizontalAlignment="Left" Margin="12,68,0,0" Name="txtBlkData" Text="" VerticalAlignment="Top" Width="276" />
-        <ComboBox Height="50" HorizontalAlignment="Left" Margin="77,12,0,0" Name="portsAvailable" VerticalAlignment="Top" Width="138" />
-
+        <Button Content="Connect" Height="31" HorizontalAlignment="Left" Margin="12,12,0,0" Name="btnStart" VerticalAlignment="Top" Width="276" Click="btnStart_Click" IsEnabled="True"/>
+        <TextBlock Height="217" HorizontalAlignment="Left" Margin="12,49,0,0" Name="txtBlkData" Text="" VerticalAlignment="Top" Width="276" />
+        <TextBlock Height="16" HorizontalAlignment="Left" Margin="12,272,0,0" Name="txtBlkStatus" VerticalAlignment="Top" Width="276" />
     </Grid>
 </Page>
