@@ -30,7 +30,6 @@ namespace SerialPort_client.Frames
         {
             InitializeComponent();
 
-            
             makeConnection();
         }
 
@@ -53,6 +52,54 @@ namespace SerialPort_client.Frames
             }
         }
 
+        private void processData(string _FileName)
+        {
+            string line;
+            List<Sample> samples = new List<Sample>();
+            System.IO.StreamReader dataFile = new System.IO.StreamReader(_FileName);
+
+            while ((line = dataFile.ReadLine()) != null)
+            {
+                var parts = line.Split(',');
+                int timestamp = Convert.ToInt32(parts[0]);
+                int x_acc = Convert.ToInt32(parts[1]);
+                int y_acc = Convert.ToInt32(parts[2]);
+                int z_acc = Convert.ToInt32(parts[3]);
+
+                Sample sample = new Sample(timestamp, x_acc, y_acc, z_acc);
+                samples.Add(sample);
+            }
+        }
+
+        private void sendCommand(string command)
+        {
+            byte[] msg = new byte[1];
+
+            switch(command)
+            {
+                case "a":
+                    msg[0] = Convert.ToByte('a');
+                    break;
+                case "d":
+                    msg[0] = Convert.ToByte('d');
+                    break;
+                case "i":
+                    msg[0] = Convert.ToByte('i');
+                    break;
+                case "u":
+                    msg[0] = Convert.ToByte('u');
+                    break;
+                default:
+                    break;
+            }
+            if (!port.IsOpen)
+            {
+                port.Open();
+            }
+
+            port.Write(msg, 0, 1);
+        }
+
         // send a request to every available COM port
         private bool checkPedometerConnection()
         {
@@ -64,11 +111,11 @@ namespace SerialPort_client.Frames
 
                 try
                 {
-                      port.Open();
+                    port.Open();
 
                     if (port.IsOpen)
                     {
-                        port.Write("a");
+                        this.sendCommand("a");
                         port.ReadTimeout = 2000;
                         this.btnStart.IsEnabled = false;
                         return true;
@@ -94,7 +141,7 @@ namespace SerialPort_client.Frames
         }
 
         // event handler for receiving data
-        void port_DataReceived(object sender, SerialDataReceivedEventArgs e)
+        private void port_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
             if (isTransferringByte)
             {
@@ -107,6 +154,42 @@ namespace SerialPort_client.Frames
             {
                 string msg = port.ReadExisting();
             }
+        }
+
+        public bool ByteArrayToFile(string _FileName, byte[] _ByteArray)
+        {
+            try
+            {
+                // Open file for reading
+                System.IO.FileStream _FileStream =
+                   new System.IO.FileStream(_FileName, System.IO.FileMode.Create,
+                                            System.IO.FileAccess.Write);
+                // Writes a block of bytes to this stream using data from
+                // a byte array.
+                _FileStream.Write(_ByteArray, 0, _ByteArray.Length);
+
+                // close file stream
+                _FileStream.Close();
+
+                return true;
+            }
+            catch (Exception _Exception)
+            {
+            }
+
+            // error occured, return false
+            return false;
+        }
+
+        private void btnSync_Click(object sender, RoutedEventArgs e)
+        {
+            this.sendCommand("d");
+
+            processData("C:\\Users\\Kaizhi\\KAIZHI_5.txt");
+        }
+
+        private void btnAddUser_Click(object sender, RoutedEventArgs e)
+        {
         }
     }
 }

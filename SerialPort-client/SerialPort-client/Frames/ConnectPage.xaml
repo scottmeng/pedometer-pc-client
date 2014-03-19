@@ -9,7 +9,9 @@
 
     <Grid>
         <Button Content="Connect" Height="31" HorizontalAlignment="Left" Margin="12,12,0,0" Name="btnStart" VerticalAlignment="Top" Width="276" Click="btnStart_Click" IsEnabled="True"/>
-        <TextBlock Height="217" HorizontalAlignment="Left" Margin="12,49,0,0" Name="txtBlkData" Text="" VerticalAlignment="Top" Width="276" />
+        <TextBlock Height="188" HorizontalAlignment="Left" Margin="12,78,0,0" Name="txtBlkData" Text="" VerticalAlignment="Top" Width="276" />
         <TextBlock Height="16" HorizontalAlignment="Left" Margin="12,272,0,0" Name="txtBlkStatus" VerticalAlignment="Top" Width="276" />
+        <Button Content="Sync data" Height="23" HorizontalAlignment="Left" Margin="12,49,0,0" Name="btnSync" VerticalAlignment="Top" Width="138" Click="btnSync_Click" />
+        <Button Content="Register user" Height="23" HorizontalAlignment="Left" Margin="156,49,0,0" Name="btnAddUser" VerticalAlignment="Top" Width="132" Click="btnAddUser_Click" />
     </Grid>
 </Page>
