@@ -88,6 +88,7 @@
     </Compile>
     <Compile Include="Sources\Accelerations.cs" />
     <Compile Include="Sources\ComboboxItem.cs" />
+    <Compile Include="Sources\History.cs" />
     <Compile Include="Sources\User.cs" />
     <Page Include="Frames\ConnectPage.xaml">
       <SubType>Designer</SubType>
