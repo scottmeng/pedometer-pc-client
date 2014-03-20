@@ -208,7 +208,6 @@ void checkConnection()
  */
 void transferNewData()
 {
-  Serial.println("transferNewData");
   byte dummy, userid, index;
 
   dataFile = SD.open("profile.txt");
@@ -326,15 +325,9 @@ void initialize()
   dataFile = SD.open("profile.txt", FILE_WRITE);
   Serial.println("profile.txt created! Device initialized");
   
-  // for debug
-  dataFile.write(byte(1));
-  dataFile.write(',');
-  dataFile.write(byte(0));
-  dataFile.write('\n');
-  dataFile.write(byte(2));
-  dataFile.write(',');
-  dataFile.write(byte(0));
-  dataFile.write('\n');
+  dataFile.println("1,0");
+  dataFile.println("2,0");
+  dataFile.println("3,0");
 
   state = 0x01;
   dataFile.close();
@@ -377,7 +370,6 @@ void writeData(long timeStamp, char data[])
 {
   char record[256];
   sprintf(record, "%ld, %s", timeStamp, data);
-  Serial.println(record);
   dataFile = SD.open(fileName, FILE_WRITE);
   dataFile.println(record);
   dataFile.close();
