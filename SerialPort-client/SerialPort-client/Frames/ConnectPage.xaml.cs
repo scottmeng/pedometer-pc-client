@@ -26,6 +26,8 @@ namespace SerialPort_client.Frames
         private SerialPort port;
         private bool connected = false;
         private bool isTransferringByte = false;
+        private List<string> newFileNames;
+        private string allData;
 
         public ConnectPage()
         {
@@ -149,13 +151,61 @@ namespace SerialPort_client.Frames
             makeConnection();
         }
 
+        private static byte[] GetBytes(string str)
+        {
+            byte[] bytes = new byte[str.Length];
+            System.Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
+            return bytes;
+        }
+
+        static string GetString(byte[] bytes)
+        {
+            char[] chars = new char[bytes.Length];
+            System.Buffer.BlockCopy(bytes, 0, chars, 0, bytes.Length);
+            return new string(chars);
+        }
+
         // event handler for receiving data
         private void port_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
+            int uid, index;
+            string fileName;
             int bytes = port.BytesToRead;
             byte[] comBuffer = new byte[bytes];
-            port.Read(comBuffer, 0, bytes);
-            this.ByteArrayToFile("test.txt", comBuffer);
+            port.Read(comBuffer, 0, bytes);         // every byte in this packet has been stored in the array
+
+            string buf = System.Text.Encoding.ASCII.GetString(comBuffer);
+            allData += buf;
+
+            if (buf.Contains("--"))
+            {
+                allData = allData.Remove(allData.Length - 2, 2); 
+                string[] parts = allData.Split('+').ToArray<string>();
+
+                foreach (string part in parts)
+                {
+                    if (part.Length != 0)
+                    {
+                        byte[] partData = System.Text.Encoding.ASCII.GetBytes(part);
+                        uid = (int)partData[0];
+                        index = (int)partData[1];
+                        partData = partData.Skip(2).ToArray<byte>();
+
+                        fileName = uid.ToString() + "_" + index.ToString() + ".txt";
+                        newFileNames.Add(fileName);
+                        this.ByteArrayToFile(fileName, partData);
+                    }
+                }
+            }            
+        }
+
+        private static bool isFileHeader(byte data)
+        {
+            if (data == '+')
+            {
+                return true;
+            }
+            return false;
         }
 
         public bool ByteArrayToFile(string _FileName, byte[] _ByteArray)
@@ -185,9 +235,9 @@ namespace SerialPort_client.Frames
 
         private void btnSync_Click(object sender, RoutedEventArgs e)
         {
+            allData = "";
+            newFileNames = new List<string>();
             this.sendCommand("d");
-
-            //processData("C:\\Users\\Kaizhi\\KAIZHI_5.txt");
         }
 
         private void btnAddUser_Click(object sender, RoutedEventArgs e)

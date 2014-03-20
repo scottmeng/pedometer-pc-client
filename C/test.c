@@ -92,16 +92,6 @@ void loop()
   if (state == 0x10) {
     if (readPCCommand()) {
       switch (pcCommand) {
-        case 'a':
-          if (isInitialized())
-          {
-            Serial.write('o');
-          }
-          else
-          {
-            Serial.write('n');
-          }
-          break;
         case 'd':
           transferNewData();
           break;
@@ -211,7 +201,7 @@ bool readPCCommand()
  */
 void checkConnection()
 {
-  if (Serial.available() > 0 && Serial.read() == 'a')
+  if (Serial.available() > 0 && Serial.read() == 0x61)
   {
     state = 0x10;                // change the state into "connected"
     if (isInitialized())
@@ -477,4 +467,3 @@ void valueToWORD(int v){ //turns the word you put into it (the paramter in the c
   highbyte = highByte(v); //the high byte is the first byte in the word
   lowbyte = lowByte(v); //the low byte is the last byte in the word (there are only 2 in a word)
 }
-
