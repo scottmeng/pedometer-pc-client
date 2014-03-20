@@ -132,7 +132,7 @@ void loop()
         case 'd':
           transferNewData();
           break;
-        case 'a':
+        case 'u':
           addNewUser();
           break;
         case 'i':
@@ -344,7 +344,6 @@ bool isInitialized()
 {
   if (SD.exists("profile.txt") && (SD.open("profile.txt").size() > 0))
   {
-    Serial.println("Device is initialized");
     return true;
   }
   return false;

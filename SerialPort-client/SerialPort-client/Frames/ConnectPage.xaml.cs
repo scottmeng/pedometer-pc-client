@@ -12,6 +12,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.IO.Ports;
+using System.Threading;
 
 using SerialPort_client.Sources;
 
@@ -30,7 +31,8 @@ namespace SerialPort_client.Frames
         {
             InitializeComponent();
 
-            makeConnection();
+            //makeConnection();
+            DetectArduino();
         }
 
         private void makeConnection()
@@ -100,37 +102,77 @@ namespace SerialPort_client.Frames
             port.Write(msg, 0, 1);
         }
 
+        private bool DetectArduino()
+        {
+            port = new SerialPort("COM4", 9600);
+            port.DataBits = 8;
+            port.StopBits = StopBits.One;
+            port.Parity = Parity.None;
+            port.DtrEnable = true;
+            port.RtsEnable = true;
+            try
+            {
+                //The below setting are for the Hello handshake
+                byte[] buffer = new byte[5];
+                buffer[0] = Convert.ToByte(16);
+                buffer[1] = Convert.ToByte(128);
+                buffer[2] = Convert.ToByte(0);
+                buffer[3] = Convert.ToByte(0);
+                buffer[4] = Convert.ToByte(4);
+                int intReturnASCII = 0;
+                char charReturnValue = (Char)intReturnASCII;
+                port.Open();
+                //port.Write("test");
+                while (0 == port.BytesToRead)
+                    Thread.Sleep(100);
+                char[] first = new char[port.BytesToRead];
+                port.Read(first, 0, first.Length);
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+
+            return false;
+        }
+
+
         // send a request to every available COM port
         private bool checkPedometerConnection()
         {
             string[] portNames = SerialPort.GetPortNames();
 
-            foreach (string portName in portNames)
-            {
-                port = new SerialPort(portName, 9600);
+            port = new SerialPort("COM4", 9600);
+            port.Open();
+            port.DataReceived += new SerialDataReceivedEventHandler(port_DataReceived);
 
-                try
-                {
-                    port.Open();
+            //foreach (string portName in portNames)
+            //{
+            //    port = new SerialPort(portName, 9600);
 
-                    if (port.IsOpen)
-                    {
-                        this.sendCommand("a");
-                        port.ReadTimeout = 2000;
-                        this.btnStart.IsEnabled = false;
-                        return true;
-                        if (port.ReadChar() == 'b')
-                        {
-                            port.DataReceived += new SerialDataReceivedEventHandler(port_DataReceived);
-                            return true;
-                        }
-                    }
-                }
-                catch
-                {
-                    continue;
-                }
-            }
+            //    try
+            //    {
+            //        port.Open();
+
+            //        if (port.IsOpen)
+            //        {
+            //            //this.sendCommand("a");
+            //            port.ReadTimeout = 1000;
+            //            this.btnStart.IsEnabled = false;
+            //            //int deviceState = port.ReadByte();
+            //            //if (deviceState != 0)
+            //            //{
+            //            //    port.DataReceived += new SerialDataReceivedEventHandler(port_DataReceived);
+            //            //    return true;
+            //            //}
+            //            port.DataReceived += new SerialDataReceivedEventHandler(port_DataReceived);
+            //        }
+            //    }
+            //    catch
+            //    {
+            //        continue;
+            //    }
+            //}
 
             return false;
         }
@@ -143,17 +185,21 @@ namespace SerialPort_client.Frames
         // event handler for receiving data
         private void port_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
-            if (isTransferringByte)
-            {
-                int bytes = port.BytesToRead;
+            int bytes = port.BytesToRead;
+            byte[] comBuffer = new byte[bytes];
+            port.Read(comBuffer, 0, bytes);
+            this.txtBlkData.Text = comBuffer.ToString();
+            //if (isTransferringByte)
+            //{
+            //    int bytes = port.BytesToRead;
 
-                byte[] comBuffer = new byte[bytes];
-                port.Read(comBuffer, 0, bytes);
-            }
-            else
-            {
-                string msg = port.ReadExisting();
-            }
+            //    byte[] comBuffer = new byte[bytes];
+            //    port.Read(comBuffer, 0, bytes);
+            //}
+            //else
+            //{
+            //    string msg = port.ReadExisting();
+            //}
         }
 
         public bool ByteArrayToFile(string _FileName, byte[] _ByteArray)
