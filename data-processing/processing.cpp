@@ -41,10 +41,10 @@ vector<int> step_timestamps_y;
 vector<int> step_timestamps_z;
 vector<int> step_timestamps_sqrt;
 
-#define FILTER_LENGTH 10
+#define FILTER_LENGTH 16
 #define WINDOW_LENGTH 20
-#define DATA_DIR "KAIZHI_7.txt"
-#define GAUSSIAN false
+#define DATA_DIR "3.txt"
+#define GAUSSIAN true
 
 /*
  * low pass fileter using average
@@ -267,19 +267,11 @@ int main() {
 
 	countSteps();
 
-	/*
-
-	for(index = 0; index < step_timestamps_x.size(); index ++) {
-		cout << step_timestamps[index] << endl;
-	}
-
-	*/
-
-	cout << "Number of steps counted in x-axis is: " << step_timestamps_x.size() << endl;
-	cout << "Number of steps counted in y-axis is: " << step_timestamps_y.size() << endl;
-	cout << "Number of steps counted in z-axis is: " << step_timestamps_z.size() << endl;
-	cout << "Average: " << (step_timestamps_x.size() + step_timestamps_y.size() + step_timestamps_z.size()) / 3 << endl;
+	cout << "Number of steps counted in x-axis is: " << step_timestamps_x.size() * 2 << endl;
+	cout << "Number of steps counted in y-axis is: " << step_timestamps_y.size() * 2<< endl;
+	cout << "Number of steps counted in z-axis is: " << step_timestamps_z.size() * 2<< endl;
+	cout << "Average: " << (step_timestamps_x.size() * 2 + step_timestamps_y.size() * 2 + step_timestamps_z.size() * 2) / 3 << endl;
 	cout << "Number of steps counted in processed-axis is: " << step_timestamps_sqrt.size() << endl;
-
+	
 	return 0;
 }
