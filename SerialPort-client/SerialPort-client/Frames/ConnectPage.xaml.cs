@@ -13,7 +13,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.IO.Ports;
 using System.Threading;
-
+using System.Data.SqlServerCe;
 using SerialPort_client.Sources;
 
 namespace SerialPort_client.Frames
@@ -29,13 +29,15 @@ namespace SerialPort_client.Frames
         private List<string> newFileNames;
         private string allData;
 
+        private string conString = "Data Source=C:\\Users\\Kaizhi\\exerciseData.sdf;Password=admin;Persist Security Info=True";
+
         public ConnectPage()
         {
             InitializeComponent();
 
             //makeConnection();
             //DetectArduino();
-            processData("1_12.txt");
+            processData("2.txt");
         }
 
         private void makeConnection()
@@ -59,11 +61,12 @@ namespace SerialPort_client.Frames
             }
         }
 
-        private void processData(string _FileName)
+        private void processData(int userId, int sessionIndex)
         {
+            string fileName = userId.ToString() + "_" + sessionIndex.ToString() + ".txt";
             string line;
             List<Sample> samples = new List<Sample>();
-            System.IO.StreamReader dataFile = new System.IO.StreamReader(_FileName);
+            System.IO.StreamReader dataFile = new System.IO.StreamReader(fileName);
 
             while ((line = dataFile.ReadLine()) != null)
             {
@@ -77,9 +80,145 @@ namespace SerialPort_client.Frames
                 samples.Add(sample);
             }
 
-            samples = lowPassFilter(samples, 16);
+            samples = lowPassFilter(samples, 10);
             List<double> thresholds = this.calThresholds(samples, 50);
             List<int> stepTimes = this.countSteps(samples, thresholds);
+            this.recordSteps(userId, sessionIndex, stepTimes);
+        }
+
+        private double calDistanceFromStep(int userHeight, List<int> stepTimes)
+        {
+            double height = (double) userHeight;
+            int startTime = stepTimes[0];
+            int curFrame = 0;
+            int countInFrame = 0;
+            double distance = 0;
+
+            foreach (int stepTime in stepTimes)
+            {
+                if ((stepTime - startTime) / 2000 == curFrame)
+                {
+                    countInFrame += 1;
+                }
+                else
+                {
+                    distance += calDistancePerFrame(height, countInFrame);
+                    countInFrame = 0;
+                    curFrame = (stepTime - startTime) / 2000;
+                }
+            }
+
+            return distance;
+        }
+
+        private double calDistancePerFrame(double height, int stepsPerFrame)
+        {
+            double distance = 0;
+            switch (stepsPerFrame)
+            {
+                case 0:
+                    distance += 0;
+                    break;
+                case 1:
+                    distance += stepsPerFrame * height / 5;
+                    break;
+                case 2:
+                    distance += stepsPerFrame * height / 5;
+                    break;
+                case 3:
+                    distance += stepsPerFrame * height / 4;
+                    break;
+                case 4:
+                    distance += stepsPerFrame * height / 3;
+                    break;
+                case 5:
+                    distance += stepsPerFrame * height / 2;
+                    break;
+                case 6:
+                    distance += stepsPerFrame * height / 1.2;
+                    break;
+                case 7:
+                    distance += stepsPerFrame * height;
+                    break;
+                default:
+                    distance += stepsPerFrame * height;
+                    break;
+            }
+
+            return distance;
+        }
+
+        private void recordSteps(int userId, int sessionIndex, List<int> stepTimes)
+        {
+            int startTime = stepTimes[0];
+            int curMin = 0;
+            int countInMin = 0;
+
+            User user = getUserByID(userId);
+            int height = user.Height;
+
+            foreach (int stepTime in stepTimes)
+            {
+                if ((stepTime - startTime) / 60000 == curMin)
+                {
+                    countInMin += 1;
+                }
+                else
+                {
+                    this.saveRecordToDB(userId, sessionIndex, curMin, countInMin);
+                    curMin = (stepTime - startTime) / 60000;
+                    countInMin = 0;
+                }
+            }
+
+        }
+
+        private User getUserByID(int userId)
+        {
+            User user;
+            using (SqlCeConnection con = new SqlCeConnection(conString))
+            {
+                con.Open();
+                // Read in all values in the table.
+                using (SqlCeCommand com = new SqlCeCommand("SELECT id,name,gender,age,height FROM Users WHERE id = @id", con))
+                {
+                    com.Parameters.AddWithValue("@id", userId);
+                    SqlCeDataReader reader = com.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        int id = reader.GetInt32(0);
+                        string name = reader.GetString(1);
+                        string gender = reader.GetString(2);
+                        int age = reader.GetInt32(3);
+                        int height = reader.GetInt32(4);
+
+                        user = new User(id, name, gender, age, height);
+                    }
+                }
+            }
+
+            return user;
+        }
+
+        private void saveRecordToDB(int userId, int sessionIndex, int min, int stepCount, double distance, double calorie)
+        {
+            using (SqlCeConnection con = new SqlCeConnection(conString))
+            {
+                con.Open();
+
+                // Insert into the SqlCe table. ExecuteNonQuery is best for inserts.
+                using (SqlCeCommand com = new SqlCeCommand("INSERT INTO History (uid, date, min, steps, distance, calories, hid) VALUES (@uid, @date, @min, @steps, @distance, @calories, @hid)", con))
+                {
+                    com.Parameters.AddWithValue("@uid", userId);
+                    com.Parameters.AddWithValue("@date", DateTime.Today);
+                    com.Parameters.AddWithValue("@min", min);
+                    com.Parameters.AddWithValue("@steps", stepCount);
+                    com.Parameters.AddWithValue("@distance", distance);
+                    com.Parameters.AddWithValue("@calories", calorie);
+                    com.Parameters.AddWithValue("@hid", sessionIndex);
+                    com.ExecuteNonQuery();
+                }
+            }
         }
 
         private List<Sample> lowPassFilter(List<Sample> rawSamples, int filterLength)
@@ -124,7 +263,14 @@ namespace SerialPort_client.Frames
 
                 if (index >= windowSize - 1)
                 {
-                    thresholds.Add((max + min) / 2);
+                    if ((max - min) > 1.5)
+                    {
+                        thresholds.Add((max + min) / 2);
+                    }
+                    else
+                    {
+                        thresholds.Add(double.MinValue);
+                    }
                     index = 0;
                     min = double.MaxValue;
                     max = double.MinValue;
@@ -146,14 +292,17 @@ namespace SerialPort_client.Frames
         private List<int> countSteps(List<Sample> samples, List<double> thresholds)
         {
             List<int> stepTimes = new List<int>();
-            int index = 0;
+            int index = 0, lastStepTime = 0;
             bool isPrevLarger = false;
 
             foreach (Sample sample in samples)
             {
-                if (sample.rootSumSquare < thresholds[index / 50] && isPrevLarger)
+                if (sample.rootSumSquare < thresholds[index / 50] 
+                 && isPrevLarger
+                 && (sample.TimeStamp - lastStepTime) > 150)
                 {
                     stepTimes.Add(sample.TimeStamp);
+                    lastStepTime = sample.TimeStamp;
                 }
 
                 isPrevLarger = sample.rootSumSquare > thresholds[index / 50];
