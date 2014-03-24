@@ -43,7 +43,7 @@ vector<int> step_timestamps_sqrt;
 
 #define FILTER_LENGTH 16
 #define WINDOW_LENGTH 20
-#define DATA_DIR "3.txt"
+#define DATA_DIR "1_12.txt"
 #define GAUSSIAN true
 
 /*
