@@ -75,6 +75,91 @@ namespace SerialPort_client.Frames
                 Sample sample = new Sample(timestamp, x_acc, y_acc, z_acc);
                 samples.Add(sample);
             }
+
+            samples.Clear();
+            samples = lowPassFilter(samples, 16);
+            List<double> thresholds = this.calThresholds(samples, 50);
+            List<int> stepTimes = this.countSteps(samples, thresholds);
+        }
+
+        private List<Sample> lowPassFilter(List<Sample> rawSamples, int filterLength)
+        {
+            double average;
+            List<Sample> filteredSamples = new List<Sample>();
+            for (int index = (filterLength / 2 - 1); index < (rawSamples.Count - (filterLength / 2 + 1)); ++index)
+            {
+                average = 0;
+
+                for (int i = (index - (filterLength / 2 - 1)); i < (index + (filterLength / 2 + 1)); ++i)
+                {
+                    average += rawSamples[i].rootSumSquare;
+                }
+
+                average = average / filterLength;
+
+                Sample filteredSample = new Sample(average);
+                filteredSamples.Add(filteredSample);
+            }
+
+            return filteredSamples;
+        }
+
+        private List<double> calThresholds(List<Sample> filteredSamples, int windowSize)
+        {
+            List<double> thresholds = new List<double>();
+            double max = double.MinValue, min = double.MaxValue;
+            int index = 0;
+
+            foreach (Sample sample in filteredSamples)
+            {
+                if (sample.rootSumSquare < min)
+                {
+                    min = sample.rootSumSquare;
+                }
+
+                if (sample.rootSumSquare > max)
+                {
+                    max = sample.rootSumSquare;
+                }
+
+                if (index >= windowSize - 1)
+                {
+                    thresholds.Add((max + min) / 2);
+                    index = 0;
+                    min = double.MinValue;
+                    max = double.MaxValue;
+                }
+
+                index += 1;
+            }
+
+            if (index != 1)
+            {
+                thresholds.Add((max + min) / 2);
+            }
+
+            return thresholds;
+        }
+
+        private List<int> countSteps(List<Sample> samples, List<double> thresholds)
+        {
+            List<int> stepTimes = new List<int>();
+            int index = 0;
+            bool isPrevLarger = false;
+
+            foreach (Sample sample in samples)
+            {
+                if (sample.rootSumSquare < thresholds[index / 50] && isPrevLarger)
+                {
+                    stepTimes.Add(sample.TimeStamp);
+                }
+
+                isPrevLarger = sample.rootSumSquare > thresholds[index / 50];
+
+                index += 1;
+            }
+
+            return stepTimes;
         }
 
         private void sendCommand(string command)
