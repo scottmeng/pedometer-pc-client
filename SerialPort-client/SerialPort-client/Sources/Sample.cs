@@ -14,8 +14,9 @@ namespace SerialPort_client.Sources
 
         public double rootSumSquare { get; set; }
 
-        public Sample(double filteredRootSumSquare)
+        public Sample(int timeStamp, double filteredRootSumSquare)
         {
+            this.TimeStamp = timeStamp;
             this.rootSumSquare = filteredRootSumSquare;
         }
 

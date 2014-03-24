@@ -33,8 +33,9 @@ namespace SerialPort_client.Frames
         {
             InitializeComponent();
 
-            makeConnection();
+            //makeConnection();
             //DetectArduino();
+            processData("1_12.txt");
         }
 
         private void makeConnection()
@@ -76,7 +77,6 @@ namespace SerialPort_client.Frames
                 samples.Add(sample);
             }
 
-            samples.Clear();
             samples = lowPassFilter(samples, 16);
             List<double> thresholds = this.calThresholds(samples, 50);
             List<int> stepTimes = this.countSteps(samples, thresholds);
@@ -97,7 +97,7 @@ namespace SerialPort_client.Frames
 
                 average = average / filterLength;
 
-                Sample filteredSample = new Sample(average);
+                Sample filteredSample = new Sample(rawSamples[index].TimeStamp , average);
                 filteredSamples.Add(filteredSample);
             }
 
@@ -126,11 +126,13 @@ namespace SerialPort_client.Frames
                 {
                     thresholds.Add((max + min) / 2);
                     index = 0;
-                    min = double.MinValue;
-                    max = double.MaxValue;
+                    min = double.MaxValue;
+                    max = double.MinValue;
                 }
-
-                index += 1;
+                else
+                {
+                    index += 1;
+                }
             }
 
             if (index != 1)
