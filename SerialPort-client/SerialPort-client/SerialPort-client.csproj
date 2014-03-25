@@ -86,6 +86,9 @@
     <Compile Include="Frames\IndexPage.xaml.cs">
       <DependentUpon>IndexPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Frames\NewUserSetupPage.xaml.cs">
+      <DependentUpon>NewUserSetupPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Sources\Accelerations.cs" />
     <Compile Include="Sources\ComboboxItem.cs" />
     <Compile Include="Sources\History.cs" />
@@ -100,6 +103,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Frames\IndexPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Frames\NewUserSetupPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

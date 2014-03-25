@@ -32,3 +32,5 @@ C:\Users\Kaizhi\pedometer-pc-client\SerialPort-client\SerialPort-client\obj\x86\
 C:\Users\Kaizhi\pedometer-pc-client\SerialPort-client\SerialPort-client\bin\Debug\exerciseData.sdf
 C:\Users\Kaizhi\pedometer-pc-client\SerialPort-client\SerialPort-client\obj\x86\Debug\GeneratedInternalTypeHelper.g.cs
 C:\Users\Kaizhi\pedometer-pc-client\SerialPort-client\SerialPort-client\obj\x86\Debug\SerialPort-client_MarkupCompile.lref
+C:\Users\Kaizhi\pedometer-pc-client\SerialPort-client\SerialPort-client\obj\x86\Debug\Frames\NewUserSetupPage.baml
+C:\Users\Kaizhi\pedometer-pc-client\SerialPort-client\SerialPort-client\obj\x86\Debug\Frames\NewUserSetupPage.g.cs

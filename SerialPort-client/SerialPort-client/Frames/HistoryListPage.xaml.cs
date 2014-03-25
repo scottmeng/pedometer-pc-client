@@ -136,6 +136,14 @@ namespace SerialPort_client.Frames
                 }
             }
         }
+
+        private void btnBack_Click(object sender, RoutedEventArgs e)
+        {
+            if (NavigationService.CanGoBack)
+            {
+                NavigationService.GoBack();
+            }
+        }
     }
 
     [ValueConversion(typeof(bool), typeof(Visibility))]

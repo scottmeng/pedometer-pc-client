@@ -37,7 +37,7 @@ namespace SerialPort_client.Frames
 
             //makeConnection();
             //DetectArduino();
-            processData(1, 13);
+            processData(2, 1);
         }
 
         private void makeConnection()
@@ -107,6 +107,10 @@ namespace SerialPort_client.Frames
                     curFrame = (stepTime - startTime) / 2000;
                 }
             }
+            if (countInFrame != 0)
+            {
+                distance += calDistancePerFrame(height, countInFrame);
+            }
 
             return distance;
         }
@@ -120,37 +124,65 @@ namespace SerialPort_client.Frames
                     distance += 0;
                     break;
                 case 1:
-                    distance += stepsPerFrame * height / 5;
-                    break;
-                case 2:
-                    distance += stepsPerFrame * height / 5;
-                    break;
-                case 3:
                     distance += stepsPerFrame * height / 4;
                     break;
-                case 4:
+                case 2:
+                    distance += stepsPerFrame * height / 4;
+                    break;
+                case 3:
                     distance += stepsPerFrame * height / 3;
                     break;
-                case 5:
+                case 4:
                     distance += stepsPerFrame * height / 2;
                     break;
-                case 6:
+                case 5:
                     distance += stepsPerFrame * height / 1.2;
                     break;
-                case 7:
+                case 6:
                     distance += stepsPerFrame * height;
                     break;
+                case 7:
+                    distance += stepsPerFrame * height * 1.2;
+                    break;
                 default:
-                    distance += stepsPerFrame * height;
+                    distance += stepsPerFrame * height * 1.2;
                     break;
             }
 
             return distance;
         }
 
-        private double calCalorieFromSteps(int userWeight, List<int> stepTimes)
+        private double calCalorieFromSteps(int userHeight, int userWeight, List<int> stepTimes)
         {
             double calorie = 0;
+            double height = (double)userHeight;
+            double weight = (double)userWeight;
+            int startTime = stepTimes[0];
+            int curFrame = 0;
+            int countInFrame = 0;
+            double speed;
+
+            foreach (int stepTime in stepTimes)
+            {
+                if ((stepTime - startTime) / 2000 == curFrame)
+                {
+                    countInFrame += 1;
+                }
+                else
+                {
+                    speed = calDistancePerFrame(height, countInFrame);
+                    calorie += speed * weight / 40000;
+                    countInFrame = 0;
+                    curFrame = (stepTime - startTime) / 2000;
+                }
+            }
+
+            if (countInFrame != 0)
+            {
+                speed = calDistancePerFrame(height, countInFrame);
+                calorie += speed * weight / 40000;
+            }
+
             return calorie;
         }
 
@@ -175,7 +207,7 @@ namespace SerialPort_client.Frames
                 else
                 {
                     distance = this.calDistanceFromSteps(user.Height, stepTimesPerMin);
-                    calorie = this.calCalorieFromSteps(user.Weight, stepTimesPerMin);
+                    calorie = this.calCalorieFromSteps(user.Height, user.Weight, stepTimesPerMin);
                     this.saveRecordToDB(userId, sessionIndex, curMin, countInMin, distance, calorie);
                     curMin = (stepTime - startTime) / 60000 + 1;
                     countInMin = 0;
@@ -185,7 +217,7 @@ namespace SerialPort_client.Frames
             if (countInMin != 0)
             {
                 distance = this.calDistanceFromSteps(user.Height, stepTimesPerMin);
-                calorie = this.calCalorieFromSteps(user.Weight, stepTimesPerMin);
+                calorie = this.calCalorieFromSteps(user.Height, user.Weight, stepTimesPerMin);
                 this.saveRecordToDB(userId, sessionIndex, curMin, countInMin, distance, calorie);
             }
         }
@@ -496,6 +528,15 @@ namespace SerialPort_client.Frames
 
         private void btnAddUser_Click(object sender, RoutedEventArgs e)
         {
+            NavigationService.Navigate(new Uri("Frames/NewUserSetupPage.xaml", UriKind.Relative));
+        }
+
+        private void btnBack_Click(object sender, RoutedEventArgs e)
+        {
+            if (NavigationService.CanGoBack)
+            {
+                NavigationService.GoBack();
+            }
         }
     }
 }
