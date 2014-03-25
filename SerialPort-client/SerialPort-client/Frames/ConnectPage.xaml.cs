@@ -37,7 +37,7 @@ namespace SerialPort_client.Frames
 
             //makeConnection();
             //DetectArduino();
-            processData("2.txt");
+            processData(1, 13);
         }
 
         private void makeConnection()
@@ -86,7 +86,7 @@ namespace SerialPort_client.Frames
             this.recordSteps(userId, sessionIndex, stepTimes);
         }
 
-        private double calDistanceFromStep(int userHeight, List<int> stepTimes)
+        private double calDistanceFromSteps(int userHeight, List<int> stepTimes)
         {
             double height = (double) userHeight;
             int startTime = stepTimes[0];
@@ -148,39 +148,56 @@ namespace SerialPort_client.Frames
             return distance;
         }
 
+        private double calCalorieFromSteps(int userWeight, List<int> stepTimes)
+        {
+            double calorie = 0;
+            return calorie;
+        }
+
         private void recordSteps(int userId, int sessionIndex, List<int> stepTimes)
         {
             int startTime = stepTimes[0];
-            int curMin = 0;
+            int curMin = 1;
             int countInMin = 0;
+            double distance = 0;
+            double calorie = 0;
+            List<int> stepTimesPerMin = new List<int>();
 
             User user = getUserByID(userId);
-            int height = user.Height;
 
             foreach (int stepTime in stepTimes)
             {
-                if ((stepTime - startTime) / 60000 == curMin)
+                if ((stepTime - startTime) / 60000 == (curMin - 1))
                 {
                     countInMin += 1;
+                    stepTimesPerMin.Add(stepTime);
                 }
                 else
                 {
-                    this.saveRecordToDB(userId, sessionIndex, curMin, countInMin);
-                    curMin = (stepTime - startTime) / 60000;
+                    distance = this.calDistanceFromSteps(user.Height, stepTimesPerMin);
+                    calorie = this.calCalorieFromSteps(user.Weight, stepTimesPerMin);
+                    this.saveRecordToDB(userId, sessionIndex, curMin, countInMin, distance, calorie);
+                    curMin = (stepTime - startTime) / 60000 + 1;
                     countInMin = 0;
+                    stepTimesPerMin.Clear();
                 }
             }
-
+            if (countInMin != 0)
+            {
+                distance = this.calDistanceFromSteps(user.Height, stepTimesPerMin);
+                calorie = this.calCalorieFromSteps(user.Weight, stepTimesPerMin);
+                this.saveRecordToDB(userId, sessionIndex, curMin, countInMin, distance, calorie);
+            }
         }
 
         private User getUserByID(int userId)
         {
-            User user;
+            User user = null;
             using (SqlCeConnection con = new SqlCeConnection(conString))
             {
                 con.Open();
                 // Read in all values in the table.
-                using (SqlCeCommand com = new SqlCeCommand("SELECT id,name,gender,age,height FROM Users WHERE id = @id", con))
+                using (SqlCeCommand com = new SqlCeCommand("SELECT id,name,gender,age,height,weight FROM Users WHERE id = @id", con))
                 {
                     com.Parameters.AddWithValue("@id", userId);
                     SqlCeDataReader reader = com.ExecuteReader();
@@ -191,8 +208,9 @@ namespace SerialPort_client.Frames
                         string gender = reader.GetString(2);
                         int age = reader.GetInt32(3);
                         int height = reader.GetInt32(4);
+                        int weight = reader.GetInt32(5);
 
-                        user = new User(id, name, gender, age, height);
+                        user = new User(id, name, gender, age, height, weight);
                     }
                 }
             }

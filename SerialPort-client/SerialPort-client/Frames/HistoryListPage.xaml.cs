@@ -76,7 +76,7 @@ namespace SerialPort_client.Frames
             {
                 newCon.Open();
                 // Read in all values in the table.
-                using (SqlCeCommand com = new SqlCeCommand("SELECT id,name,gender,age,height FROM Users", newCon))
+                using (SqlCeCommand com = new SqlCeCommand("SELECT id,name,gender,age,height,weight FROM Users", newCon))
                 {
                     List<User> users = new List<User>();
                     SqlCeDataReader reader = com.ExecuteReader();
@@ -87,9 +87,10 @@ namespace SerialPort_client.Frames
                         string gender = reader.GetString(2);
                         int age = reader.GetInt32(3);
                         int height = reader.GetInt32(4);
+                        int weight = reader.GetInt32(5);
 
-                        User user = new User(id, name, gender, age, height);
-                        users.Add(user);
+                        User user = new User(id, name, gender, age, height, weight);
+                        users.Add(user); 
                     }
 
                     this.lstBoxUser.ItemsSource = users;
