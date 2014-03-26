@@ -41,10 +41,10 @@ vector<int> step_timestamps_y;
 vector<int> step_timestamps_z;
 vector<int> step_timestamps_sqrt;
 
-#define FILTER_LENGTH 16
-#define WINDOW_LENGTH 20
-#define DATA_DIR "1_12.txt"
-#define GAUSSIAN true
+#define FILTER_LENGTH 8
+#define WINDOW_LENGTH 50
+#define DATA_DIR "1.txt"
+#define GAUSSIAN false
 
 /*
  * low pass fileter using average
@@ -180,49 +180,66 @@ void getThresholds() {
 // this is just using x-axis data
 void countSteps() {
 	int index;
+	int last = 0;
 
 	if (GAUSSIAN) {
 		for(index = 0; index < timestamps_filtered_g.size(); index ++) {
 			if (x_acc_filtered_g[index] > x_thresholds[index / WINDOW_LENGTH]
-				&& x_acc_filtered_g[index + 1] < x_thresholds[index / WINDOW_LENGTH]) {
+				&& x_acc_filtered_g[index + 1] < x_thresholds[index / WINDOW_LENGTH]
+				&& (timestamps_filtered_g[index] - last) > 200) {
 				step_timestamps_x.push_back(timestamps_filtered_g[index]);
+				last = timestamps_filtered_g[index];
 			}
 
 			if (y_acc_filtered_g[index] > y_thresholds[index / WINDOW_LENGTH]
-				&& y_acc_filtered_g[index + 1] < y_thresholds[index / WINDOW_LENGTH]) {
+				&& y_acc_filtered_g[index + 1] < y_thresholds[index / WINDOW_LENGTH]
+				&& (timestamps_filtered_g[index] - last) > 200) {
 				step_timestamps_y.push_back(timestamps_filtered_g[index]);
+				last = timestamps_filtered_g[index];
 			}
 
 			if (z_acc_filtered_g[index] > z_thresholds[index / WINDOW_LENGTH]
-				&& z_acc_filtered_g[index + 1] < z_thresholds[index / WINDOW_LENGTH]) {
+				&& z_acc_filtered_g[index + 1] < z_thresholds[index / WINDOW_LENGTH]
+				&& (timestamps_filtered_g[index] - last) > 200) {
 				step_timestamps_z.push_back(timestamps_filtered_g[index]);
+				last = timestamps_filtered_g[index];
 			}
 
 			if (sqrt_acc_filtered_g[index] > sqrt_thresholds[index / WINDOW_LENGTH]
-				&& sqrt_acc_filtered_g[index + 1] < sqrt_thresholds[index / WINDOW_LENGTH]) {
+				&& sqrt_acc_filtered_g[index + 1] < sqrt_thresholds[index / WINDOW_LENGTH]
+				&& (timestamps_filtered_g[index] - last) > 200) {
 				step_timestamps_sqrt.push_back(timestamps_filtered_g[index]);
+				last = timestamps_filtered_g[index];
 			}
 		}
 	} else {
 		for(index = 0; index < timestamps_filtered.size(); index ++) {
 			if (x_acc_filtered[index] > x_thresholds[index / WINDOW_LENGTH]
-				&& x_acc_filtered[index + 1] < x_thresholds[index / WINDOW_LENGTH]) {
+				&& x_acc_filtered[index + 1] < x_thresholds[index / WINDOW_LENGTH]
+				&& (timestamps_filtered[index] - last) > 200) {
 				step_timestamps_x.push_back(timestamps_filtered[index]);
+				last = timestamps_filtered[index];
 			}
 
 			if (y_acc_filtered[index] > y_thresholds[index / WINDOW_LENGTH]
-				&& y_acc_filtered[index + 1] < y_thresholds[index / WINDOW_LENGTH]) {
+				&& y_acc_filtered[index + 1] < y_thresholds[index / WINDOW_LENGTH]
+				&& (timestamps_filtered[index] - last) > 200) {
 				step_timestamps_y.push_back(timestamps_filtered[index]);
+				last = timestamps_filtered[index];
 			}
 
 			if (z_acc_filtered[index] > z_thresholds[index / WINDOW_LENGTH]
-				&& z_acc_filtered[index + 1] < z_thresholds[index / WINDOW_LENGTH]) {
+				&& z_acc_filtered[index + 1] < z_thresholds[index / WINDOW_LENGTH]
+				&& (timestamps_filtered[index] - last) > 200) {
 				step_timestamps_z.push_back(timestamps_filtered[index]);
+				last = timestamps_filtered[index];
 			}
 
 			if (sqrt_acc_filtered[index] > sqrt_thresholds[index / WINDOW_LENGTH]
-				&& sqrt_acc_filtered[index + 1] < sqrt_thresholds[index / WINDOW_LENGTH]) {
+				&& sqrt_acc_filtered[index + 1] < sqrt_thresholds[index / WINDOW_LENGTH]
+				&& (timestamps_filtered[index] - last) > 200) {
 				step_timestamps_sqrt.push_back(timestamps_filtered[index]);
+				last = timestamps_filtered[index];
 			}
 		}
 	}
