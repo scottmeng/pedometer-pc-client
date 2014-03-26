@@ -3,15 +3,14 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-      mc:Ignorable="d" 
-      d:DesignHeight="300" d:DesignWidth="300"
-	Title="ConnectPage">
+      mc:Ignorable="d" Title="ConnectPage" Height="300" Width="405">
 
-    <Grid>
-        <Button Content="Connect" Height="31" HorizontalAlignment="Left" Margin="12,12,0,0" Name="btnStart" VerticalAlignment="Top" Width="276" Click="btnStart_Click" IsEnabled="True"/>
-        <TextBlock Height="188" HorizontalAlignment="Left" Margin="12,78,0,0" Name="txtBlkData" Text="" VerticalAlignment="Top" Width="276" />
-        <TextBlock Height="16" HorizontalAlignment="Left" Margin="12,272,0,0" Name="txtBlkStatus" VerticalAlignment="Top" Width="276" />
-        <Button Content="Sync data" Height="23" HorizontalAlignment="Left" Margin="12,49,0,0" Name="btnSync" VerticalAlignment="Top" Width="138" Click="btnSync_Click" />
-        <Button Content="Register user" Height="23" HorizontalAlignment="Left" Margin="156,49,0,0" Name="btnAddUser" VerticalAlignment="Top" Width="132" Click="btnAddUser_Click" />
+    <Grid Width="400">
+        <Button Content="Connect" Height="31" HorizontalAlignment="Left" Margin="12,12,0,0" Name="btnStart" VerticalAlignment="Top" Width="376" Click="btnStart_Click" IsEnabled="True"/>
+        <TextBlock Height="155" HorizontalAlignment="Left" Margin="12,78,0,0" Name="txtBlkData" Text="" VerticalAlignment="Top" Width="376" />
+        <TextBlock Height="16" HorizontalAlignment="Left" Margin="12,239,0,0" Name="txtBlkStatus" VerticalAlignment="Top" Width="376" />
+        <Button Content="Sync data" Height="23" HorizontalAlignment="Left" Margin="12,49,0,0" Name="btnSync" VerticalAlignment="Top" Width="186" Click="btnSync_Click" />
+        <Button Content="Register user" Height="23" HorizontalAlignment="Left" Margin="213,49,0,0" Name="btnAddUser" VerticalAlignment="Top" Width="175" Click="btnAddUser_Click" />
+        <Button Content="Back" Height="23" HorizontalAlignment="Left" Margin="12,265,0,0" Name="btnBack" VerticalAlignment="Top" Width="75" Click="btnBack_Click" />
     </Grid>
 </Page>

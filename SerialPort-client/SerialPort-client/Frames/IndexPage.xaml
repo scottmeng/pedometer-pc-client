@@ -4,11 +4,11 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       mc:Ignorable="d" 
-      d:DesignHeight="300" d:DesignWidth="300"
+      d:DesignHeight="300" d:DesignWidth="404"
 	Title="IndexPage">
 
-    <Grid>
-        <Button Content="Connect Pedometer" Height="130" HorizontalAlignment="Left" Margin="12,12,0,0" Name="btnConnect" VerticalAlignment="Top" Width="276" Click="btnConnect_Click" />
-        <Button Content="View History" Height="140" HorizontalAlignment="Left" Margin="12,148,0,0" Name="btnView" VerticalAlignment="Top" Width="276" Click="btnView_Click" />
+    <Grid Width="400">
+        <Button Content="Connect Pedometer" Height="130" HorizontalAlignment="Left" Margin="12,12,0,0" Name="btnConnect" VerticalAlignment="Top" Width="376" Click="btnConnect_Click" />
+        <Button Content="View History" Height="140" HorizontalAlignment="Left" Margin="12,148,0,0" Name="btnView" VerticalAlignment="Top" Width="376" Click="btnView_Click" />
     </Grid>
 </Page>
