@@ -25,6 +25,7 @@ namespace SerialPort_client.Frames
     public partial class HistoryListPage : Page
     {
         private string conString = "Data Source=C:\\Users\\Kaizhi\\exerciseData.sdf;Password=admin;Persist Security Info=True";
+        
         public HistoryListPage()
         {
             InitializeComponent();
