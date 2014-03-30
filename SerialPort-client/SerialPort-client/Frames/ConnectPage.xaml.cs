@@ -30,11 +30,14 @@ namespace SerialPort_client.Frames
         private string allData;
 
         private string conString = "Data Source=C:\\Users\\Kaizhi\\exerciseData.sdf;Password=admin;Persist Security Info=True";
+        private ButterworthFilter butterworthFilter;
+
 
         public ConnectPage()
         {
             InitializeComponent();
 
+            butterworthFilter = new ButterworthFilter();
             //makeConnection();
             //DetectArduino();
             processData(2, 1);
@@ -80,8 +83,9 @@ namespace SerialPort_client.Frames
                 samples.Add(sample);
             }
 
-            samples = lowPassFilter(samples, 10);
-            List<double> thresholds = this.calThresholds(samples, 50);
+            // samples = this.lowPassFilter(samples, 10);
+            samples = this.butterLowPassFilter(samples);
+            List<double> thresholds = this.calThresholds(samples, 40);
             List<int> stepTimes = this.countSteps(samples, thresholds);
             this.recordSteps(userId, sessionIndex, stepTimes);
         }
@@ -269,6 +273,19 @@ namespace SerialPort_client.Frames
                     com.ExecuteNonQuery();
                 }
             }
+        }
+
+        private List<Sample> butterLowPassFilter(List<Sample> rawSamples)
+        {
+            List<Sample> filteredSamples = new List<Sample>();
+
+            foreach (Sample rawSample in rawSamples)
+            {
+                Sample filteredSample = new Sample(rawSample.TimeStamp, this.butterworthFilter.Filter(rawSample.TimeStamp));
+                filteredSamples.Add(filteredSample);
+            }
+
+            return filteredSamples;
         }
 
         private List<Sample> lowPassFilter(List<Sample> rawSamples, int filterLength)
