@@ -100,6 +100,60 @@ namespace SerialPort_client.Frames
             
         }
 
+        private void lstBoxHistory_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            var item = ItemsControl.ContainerFromElement(this.lstBoxHistory, e.OriginalSource as DependencyObject) as ListBoxItem;
+
+            if (item != null)
+            {
+                Session selectedSession = (Session)item.DataContext;
+                List<History> sortedRecords = selectedSession.Records.OrderBy(o=>o.Min).ToList();
+                int width = sortedRecords.Count;
+                int prevX = int.MinValue;
+                double prevY = 0;
+
+                foreach (History record in sortedRecords)
+                {
+                    //if (prevX != int.MinValue && prevY != 0)
+                    //{
+                    //    this.drawLines(prevX, record.Min, prevY, record.Count + prevY, sortedRecords.Capacity, selectedSession.TotalCount, this.canvasStep);
+                    //}
+                    //prevX = record.Min;
+                    //prevY += record.Count;
+                    this.drawRectangle(record.Min, record.Count, width, selectedSession.TotalCount, this.canvasStep);
+                }
+            }
+
+            this.displayStats();
+        }
+
+        private void drawLines(int leftX, int rightX, double leftY, double rightY, int width, double height, Canvas canvas)
+        {
+            Line line = new Line();
+            line.X1 = 200 * (leftX / width);
+            line.Y1 = 100 * (leftY / height);
+            line.X2 = 200 * (rightX / width);
+            line.Y2 = 100 * (rightY / height);
+            canvas.Children.Add(line);
+        }
+
+        private void drawRectangle(int x, double y, int width, double height, Canvas canvas)
+        {
+            Rectangle rect = new Rectangle();
+            rect.Fill = new SolidColorBrush(Colors.Navy);
+            rect.Width = 200 / width;
+            rect.Height = 200 * y / height;
+            Canvas.SetLeft(rect, 20 + x * 200 / width);
+            Canvas.SetBottom(rect, 40);
+            canvas.Children.Add(rect);
+        }
+
+        private void displayStats()
+        {
+            this.tabStats.Visibility = System.Windows.Visibility.Visible;
+            this.txtBlkNoSelection.Visibility = System.Windows.Visibility.Hidden;
+        }
+
         private void lstBoxUser_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
             var item = ItemsControl.ContainerFromElement(this.lstBoxUser, e.OriginalSource as DependencyObject) as ListBoxItem;
@@ -116,7 +170,8 @@ namespace SerialPort_client.Frames
                     using (SqlCeCommand com = new SqlCeCommand("SELECT date,hid,min,uid,steps,distance,calories FROM History WHERE uid = @id", newCon))
                     {
                         com.Parameters.AddWithValue("@id", selectedUser.Id);
-                        List<History> histories = new List<History>();
+                        List<Session> sessions = new List<Session>();
+                        Session curSession = null;
                         SqlCeDataReader reader = com.ExecuteReader();
                         while (reader.Read())
                         {
@@ -128,11 +183,24 @@ namespace SerialPort_client.Frames
                             double distance = reader.GetDouble(5);
                             double calorie = reader.GetDouble(6);
 
-                            History history = new History(id, date, min, index, count, distance, calorie);
-                            histories.Add(history);
+                            History record = new History(id, date, min, index, count, distance, calorie);
+
+                            if (null == curSession)
+                            {
+                                curSession = new Session(record.ID, record.Date, record.Index);
+                            }
+                            else if (curSession.ID != record.ID ||
+                                     curSession.Index != record.Index ||
+                                     curSession.Date != record.Date)
+                            {
+                                sessions.Add(curSession);
+                                curSession = new Session(record.ID, record.Date, record.Index); 
+                            }
+                            curSession.addRecord(record);
                         }
 
-                        this.lstBoxHistory.ItemsSource = histories;
+                        sessions.Add(curSession);
+                        this.lstBoxHistory.ItemsSource = sessions;
                     }
                 }
             }

@@ -25,7 +25,7 @@ namespace SerialPort_client.Sources
             this.Count = count;
             this.Distance = distance;
             this.Calories = calories;
-            this.DateDisplay = this.Date.Date.ToString();
+            this.DateDisplay = this.Date.Date.ToShortDateString();
         }
     }
 }
