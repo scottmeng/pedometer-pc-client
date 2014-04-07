@@ -38,9 +38,8 @@ namespace SerialPort_client.Frames
             InitializeComponent();
 
             butterworthFilter = new ButterworthFilter();
-            //makeConnection();
-            //DetectArduino();
-            processData(2, 1);
+            makeConnection();
+            //processData(2, 1);
         }
 
         private void makeConnection()
