@@ -106,51 +106,88 @@ namespace SerialPort_client.Frames
 
             if (item != null)
             {
+                // clear canvas
+                this.canvasCalorie.Children.Clear();
+                this.canvasCalorieAccu.Children.Clear();
+                this.canvasDistance.Children.Clear();
+                this.canvasDistanceAccu.Children.Clear();
+                this.canvasStep.Children.Clear();
+                this.canvasStepAccu.Children.Clear();
+
                 Session selectedSession = (Session)item.DataContext;
-                List<History> sortedRecords = selectedSession.Records.OrderBy(o=>o.Min).ToList();
+                List<History> sortedRecords = selectedSession.Records.OrderBy(record =>  record.Min).ToList();
+                
                 int width = sortedRecords.Count;
-                int prevX = int.MinValue;
-                double prevY = 0;
+                double maxCount = sortedRecords.Max(record => record.Count);
 
                 foreach (History record in sortedRecords)
                 {
-                    //if (prevX != int.MinValue && prevY != 0)
-                    //{
-                    //    this.drawLines(prevX, record.Min, prevY, record.Count + prevY, sortedRecords.Capacity, selectedSession.TotalCount, this.canvasStep);
-                    //}
-                    //prevX = record.Min;
-                    //prevY += record.Count;
-                    this.drawRectangle(record.Min, record.Count, width, selectedSession.TotalCount, this.canvasStep);
+                    this.drawRectangle(record.Min, record.Count, width, maxCount, Colors.CadetBlue, this.canvasStep);
                 }
+
+                this.drawPath(sortedRecords, width, selectedSession.TotalCount, Colors.CadetBlue, this.canvasStepAccu);
             }
 
             this.displayStats();
         }
 
-        private void drawLines(int leftX, int rightX, double leftY, double rightY, int width, double height, Canvas canvas)
+        private void drawPath(List<History> records, double width, double height, Color color, Canvas canvas)
         {
-            Line line = new Line();
-            line.X1 = 200 * (leftX / width);
-            line.Y1 = 100 * (leftY / height);
-            line.X2 = 200 * (rightX / width);
-            line.Y2 = 100 * (rightY / height);
-            canvas.Children.Add(line);
+            Polyline path = new Polyline();
+            path.Stroke = new SolidColorBrush(color);
+            path.StrokeThickness = 2;
+            path.HorizontalAlignment = HorizontalAlignment.Center;
+            path.VerticalAlignment = VerticalAlignment.Center;
+
+            PointCollection points = new PointCollection();
+            double sum = 0;
+            foreach (History record in records)
+            {
+                double x = record.Min / width * 300 + 20;
+                sum += record.Count;
+                double y = (height - sum) / height * 100 + 40;
+                Point point = new Point(x, y);
+                points.Add(point);
+
+                // add textblock
+                TextBlock textBlock = new TextBlock();
+                textBlock.Text = sum.ToString();
+                textBlock.Foreground = new SolidColorBrush(color);
+                Canvas.SetLeft(textBlock, x);
+                Canvas.SetBottom(textBlock, sum / height * 100 + 40);
+                canvas.Children.Add(textBlock);
+
+                // add point
+                
+            }
+
+            path.Points = points;
+            canvas.Children.Add(path);
         }
 
-        private void drawRectangle(int x, double y, int width, double height, Canvas canvas)
+        private void drawRectangle(int x, double y, int width, double height, Color color, Canvas canvas)
         {
+            // add bar
             Rectangle rect = new Rectangle();
-            rect.Fill = new SolidColorBrush(Colors.Navy);
-            rect.Width = 200 / width;
-            rect.Height = 200 * y / height;
-            Canvas.SetLeft(rect, 20 + x * 200 / width);
+            rect.Fill = new SolidColorBrush(color);
+            rect.Width = 240 / (double) width;
+            rect.Height = 100 * y / height;
+            Canvas.SetLeft(rect, 20 + x * 300 / (double) width);
             Canvas.SetBottom(rect, 40);
             canvas.Children.Add(rect);
+
+            // add textblock
+            TextBlock textBlock = new TextBlock();
+            textBlock.Text = y.ToString();
+            textBlock.Foreground = new SolidColorBrush(color);
+            Canvas.SetLeft(textBlock, 20 + x * 300 / (double)width);
+            Canvas.SetBottom(textBlock, 45 + 100 * y / height);
+            canvas.Children.Add(textBlock);
         }
 
         private void displayStats()
         {
-            this.tabStats.Visibility = System.Windows.Visibility.Visible;
+            this.gridStats.Visibility = System.Windows.Visibility.Visible;
             this.txtBlkNoSelection.Visibility = System.Windows.Visibility.Hidden;
         }
 
@@ -211,6 +248,28 @@ namespace SerialPort_client.Frames
             if (NavigationService.CanGoBack)
             {
                 NavigationService.GoBack();
+            }
+        }
+
+        private void tgBtnAccumulativeEnable_Click(object sender, RoutedEventArgs e)
+        {
+            if ((sender as System.Windows.Controls.Primitives.ToggleButton).IsChecked ?? false)
+            {
+                this.canvasStepAccu.Visibility = Visibility.Visible;
+                this.canvasStep.Visibility = Visibility.Hidden;
+                this.canvasCalorieAccu.Visibility = Visibility.Visible;
+                this.canvasCalorie.Visibility = Visibility.Hidden;
+                this.canvasDistanceAccu.Visibility = Visibility.Visible;
+                this.canvasDistance.Visibility = Visibility.Hidden;
+            }
+            else
+            {
+                this.canvasStepAccu.Visibility = Visibility.Hidden;
+                this.canvasStep.Visibility = Visibility.Visible;
+                this.canvasCalorieAccu.Visibility = Visibility.Hidden;
+                this.canvasCalorie.Visibility = Visibility.Visible;
+                this.canvasDistanceAccu.Visibility = Visibility.Hidden;
+                this.canvasDistance.Visibility = Visibility.Visible;
             }
         }
     }
