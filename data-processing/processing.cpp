@@ -41,10 +41,18 @@ vector<int> step_timestamps_y;
 vector<int> step_timestamps_z;
 vector<int> step_timestamps_sqrt;
 
+// for butterworth filter
+double inputValueModifier[4];
+double outputValueModifier[4];
+double inputValue[4];
+double outputValue[4];
+int valuePosition;
+
 #define FILTER_LENGTH 8
 #define WINDOW_LENGTH 50
 #define DATA_DIR "1.txt"
 #define GAUSSIAN false
+#define LOW_PASS_ORDER 4;
 
 /*
  * low pass fileter using average
@@ -254,6 +262,16 @@ int main() {
 	string data;
 	ifstream dataFile;
 	stringstream ss;
+
+    inputValueModifier[0] = 0.0180989;
+    inputValueModifier[1] = 0.0542968;
+    inputValueModifier[2] = 0.0542968;
+    inputValueModifier[3] = 0.0180989;
+
+    outputValueModifier[0] = 1.0;
+    outputValueModifier[1] = -1.76004;
+    outputValueModifier[2] = 1.18289;
+    outputValueModifier[3] = -0.27806;
 
 	dataFile.open(DATA_DIR);
 
