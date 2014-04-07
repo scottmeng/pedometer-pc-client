@@ -60,7 +60,7 @@ void alarm()
 void setup()
 {
   // for debug use only
-  delay(1000);
+  delay(2000);
   
   pinMode(RXLED, OUTPUT);                 // Set RX LED as an output
   pinMode(SD_CS, OUTPUT);                 // Set pin 18 as output (SD card CS)
@@ -76,12 +76,13 @@ void setup()
     
   if (!SD.begin(SD_CS)) {
     Serial.println("SD card SPI initialization failed!");
-    return;
+    //return;
   }
   Serial.println("SD card SPI connection established.");
  
   // Put the ADXL345 into +/- 4G range by writing the value 0x01 to the DATA_FORMAT register.
   writeTo(DATA_FORMAT, 0x01);
+  Serial.println("data format");
   // Put the ADXL345 into Measurement Mode by writing 0x08 to the POWER_CTL register.
   writeTo(POWER_CTL, 0x08);
   Serial.println("Accelerometer configured.");
@@ -422,13 +423,18 @@ void readAccel() {
   int z = (((int)_buff[5]) << 8) | _buff[4];
   
   sprintf(formattedData, "%d, %d, %d", x, y, z);
+  Serial.println(formattedData);
 }
 
 void writeTo(byte address, byte val) {
+  Serial.println("1");
   Wire.beginTransmission(DEVICE); // start transmission to device 
+  Serial.println("2");
   Wire.write(address);             // send register address
   Wire.write(val);                 // send value to write
-  Wire.endTransmission();         // end transmission
+  Serial.println("3");
+  int err = Wire.endTransmission();         // end transmission
+  Serial.println(err);
 }
 
 // Reads num bytes starting from address register on device in to _buff array

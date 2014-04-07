@@ -11,8 +11,8 @@
         <l:ShowNewDataTagConverter x:Key="ShowNewDataTagConverter" />
     </Page.Resources>
     <Grid Width="400">
-        <ListBox Height="66" HorizontalAlignment="Left" Margin="12,12,0,0" Name="lstBoxUser" VerticalAlignment="Top" Width="180
-                 " PreviewMouseDown="lstBoxUser_PreviewMouseDown">
+        <ListBox Height="66" HorizontalAlignment="Left" Margin="12,12,0,0" Name="lstBoxUser" VerticalAlignment="Top" Width="180" 
+                 PreviewMouseDown="lstBoxUser_PreviewMouseDown">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <Grid Width="180">
@@ -28,7 +28,8 @@
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-        <ListBox Height="66" HorizontalAlignment="Right" Margin="0,12,11,0" Name="lstBoxHistory" VerticalAlignment="Top" Width="180">
+        <ListBox Height="66" HorizontalAlignment="Right" Margin="0,12,11,0" Name="lstBoxHistory" VerticalAlignment="Top" Width="180"
+                 PreviewMouseDown="lstBoxHistory_PreviewMouseDown">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <Grid Width="180">
@@ -38,11 +39,27 @@
                             <ColumnDefinition Width="60" />
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="{Binding DateDisplay}" Grid.Column="0"/>
-                        <TextBlock Text="{Binding Count}" Grid.Column="1"/>
+                        <TextBlock Text="{Binding TotalCount}" Grid.Column="1"/>
                     </Grid>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
         <Button Content="Back" Height="23" HorizontalAlignment="Left" Margin="12,296,0,0" Name="btnBack" VerticalAlignment="Top" Width="75" Click="btnBack_Click" />
+        <TabControl Height="206" HorizontalAlignment="Left" Margin="12,84,0,0" Name="tabStats" VerticalAlignment="Top" Width="376"
+                    Visibility="Hidden">
+            <TabItem Header="Step count" Name="tabStep">
+                <Canvas Height="auto" Width="auto" Name="canvasStep"/>
+            </TabItem>
+            <TabItem Header="Distance" Name="tabDistance">
+                <Canvas Height="auto" Width="auto" Name="canvasDistance"/>
+            </TabItem>
+            <TabItem Header="Calorie" Name="tabCalorie">
+                <Canvas Height="auto" Width="auto" Name="canvasCalorie"/>
+            </TabItem>
+        </TabControl>
+        <Border BorderBrush="Green" BorderThickness="2" Height="206" HorizontalAlignment="Left" Margin="12,84,0,0" Name="border1" VerticalAlignment="Top" Width="376" CornerRadius="6">
+            <TextBlock TextWrapping="Wrap" Name="txtBlkNoSelection" Text="No exercise session is currently selected" TextAlignment="Center" VerticalAlignment="Center"
+                       FontSize="18"/>
+        </Border>
     </Grid>
 </Page>
