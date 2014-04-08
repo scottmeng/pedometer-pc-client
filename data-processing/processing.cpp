@@ -50,7 +50,7 @@ int valuePosition;
 
 #define FILTER_LENGTH 8
 #define WINDOW_LENGTH 50
-#define DATA_DIR "1.txt"
+#define DATA_DIR "1_48.txt"
 #define GAUSSIAN false
 #define LOW_PASS_ORDER 4;
 
@@ -58,6 +58,7 @@ int valuePosition;
  * low pass fileter using average
  */
 void lowPassFilter() {
+	cout << "start filter" << endl;
 	int index, i;
 	int avg_x, avg_y, avg_z;
 	double avg_sqrt;
@@ -95,11 +96,13 @@ void preProcessing() {
 	int index;
 	double processed;
 
+	cout << "start";
 	for (index = 0; index < (timestamps.size()); ++index) {
 		processed = sqrt( x_acc[index] * x_acc[index]
 						+ y_acc[index] * y_acc[index]
 						+ z_acc[index] * z_acc[index]);
 		sqrt_acc.push_back(processed);
+		cout << "test";
 	}
 }
 
@@ -263,20 +266,11 @@ int main() {
 	ifstream dataFile;
 	stringstream ss;
 
-    inputValueModifier[0] = 0.0180989;
-    inputValueModifier[1] = 0.0542968;
-    inputValueModifier[2] = 0.0542968;
-    inputValueModifier[3] = 0.0180989;
-
-    outputValueModifier[0] = 1.0;
-    outputValueModifier[1] = -1.76004;
-    outputValueModifier[2] = 1.18289;
-    outputValueModifier[3] = -0.27806;
-
 	dataFile.open(DATA_DIR);
 
 	while(getline(dataFile, data)) {
 		int size = sscanf(data.c_str(), "%d, %d, %d, %d", &timestamp, &x, &y, &z);
+		cout << size << endl;
 
 		if(size != 4) {
 			exit(0);
@@ -286,17 +280,24 @@ int main() {
 		x_acc.push_back(x);
 		y_acc.push_back(y);
 		z_acc.push_back(z);
+
+		cout << timestamp << endl;
 	}
 
+	cout << "read data done" << endl;
 	dataFile.close();
 
 	preProcessing();
+
+	cout << "preProcessing done" << endl;
 
 	if (GAUSSIAN) {
 		lowPassFilterGaussian();
 	} else {
 		lowPassFilter();
 	}
+
+	cout << "filter done";
 	
 	getThresholds();
 
