@@ -45,18 +45,29 @@
             </ListBox.ItemTemplate>
         </ListBox>
         <Button Content="Back" Height="23" HorizontalAlignment="Left" Margin="12,296,0,0" Name="btnBack" VerticalAlignment="Top" Width="75" Click="btnBack_Click" />
-        <TabControl Height="206" HorizontalAlignment="Left" Margin="12,84,0,0" Name="tabStats" VerticalAlignment="Top" Width="376"
-                    Visibility="Hidden">
-            <TabItem Header="Step count" Name="tabStep">
-                <Canvas Height="auto" Width="auto" Name="canvasStep"/>
-            </TabItem>
-            <TabItem Header="Distance" Name="tabDistance">
-                <Canvas Height="auto" Width="auto" Name="canvasDistance"/>
-            </TabItem>
-            <TabItem Header="Calorie" Name="tabCalorie">
-                <Canvas Height="auto" Width="auto" Name="canvasCalorie"/>
-            </TabItem>
-        </TabControl>
+        <Grid Margin="0,84,11,41" HorizontalAlignment="Right" Width="377" Name="gridStats" Visibility="Hidden">
+            <TabControl Height="206" HorizontalAlignment="Left" Name="tabStats" VerticalAlignment="Top" Width="376">
+                <TabItem Header="Step count" Name="tabStep" FontSize="14" >
+                    <Grid>
+                        <Canvas Height="auto" Width="auto" Name="canvasStep"/>
+                        <Canvas Height="auto" Width="auto" Name="canvasStepAccu" Visibility="Hidden"/>
+                    </Grid>
+                </TabItem>
+                <TabItem Header="Distance" Name="tabDistance" FontSize="14" >
+                    <Grid>
+                        <Canvas Height="auto" Width="auto" Name="canvasDistance"/>
+                        <Canvas Height="auto" Width="auto" Name="canvasDistanceAccu" Visibility="Hidden"/>
+                    </Grid>
+                </TabItem>
+                <TabItem Header="Calorie" Name="tabCalorie" FontSize="14" >
+                    <Grid>
+                        <Canvas Height="auto" Width="auto" Name="canvasCalorie"/>
+                        <Canvas Height="auto" Width="auto" Name="canvasCalorieAccu" Visibility="Hidden"/>
+                    </Grid>
+                </TabItem>
+            </TabControl>
+            <ToggleButton Content="Accumulative Mode" FontSize="10" HorizontalAlignment="Right" Name="TgBtnAccumulativeEnable" VerticalAlignment="Top" Margin="5,5" Click="tgBtnAccumulativeEnable_Click"/>
+        </Grid>
         <Border BorderBrush="Green" BorderThickness="2" Height="206" HorizontalAlignment="Left" Margin="12,84,0,0" Name="border1" VerticalAlignment="Top" Width="376" CornerRadius="6">
             <TextBlock TextWrapping="Wrap" Name="txtBlkNoSelection" Text="No exercise session is currently selected" TextAlignment="Center" VerticalAlignment="Center"
                        FontSize="18"/>

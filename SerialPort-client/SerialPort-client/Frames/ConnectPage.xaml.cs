@@ -38,8 +38,8 @@ namespace SerialPort_client.Frames
             InitializeComponent();
 
             butterworthFilter = new ButterworthFilter();
-            makeConnection();
-            //processData(2, 1);
+            //makeConnection();
+            //processData(1, 48);
         }
 
         private void makeConnection()
@@ -67,23 +67,55 @@ namespace SerialPort_client.Frames
         {
             string fileName = userId.ToString() + "_" + sessionIndex.ToString() + ".txt";
             string line;
+            int timestamp = 0, x_acc = 0, y_acc = 0, z_acc = 0;
             List<Sample> samples = new List<Sample>();
             System.IO.StreamReader dataFile = new System.IO.StreamReader(fileName);
 
             while ((line = dataFile.ReadLine()) != null)
             {
-                var parts = line.Split(',');
-                int timestamp = Convert.ToInt32(parts[0]);
-                int x_acc = Convert.ToInt32(parts[1]);
-                int y_acc = Convert.ToInt32(parts[2]);
-                int z_acc = Convert.ToInt32(parts[3]);
+                string[] parts = line.Split(',');
+
+                if (parts.Length == 4)
+                {
+                    timestamp = Convert.ToInt32(parts[0]);
+                    x_acc = Convert.ToInt32(parts[1]);
+                    y_acc = Convert.ToInt32(parts[2]);
+                    z_acc = Convert.ToInt32(parts[3]);  
+                }
+                else
+                {
+                    List<string> newParts = new List<string>();
+                    foreach (string part in parts)
+                    {
+                        if (part.Contains(' '))
+                        {
+                            string[] splitedParts = part.Split(' ');
+                            foreach (string splitedPart in splitedParts)
+                            {
+                                newParts.Add(splitedPart);
+                            }
+                        }
+                        else
+                        {
+                            newParts.Add(part);
+                        }
+                    }
+
+                    if (newParts.Count == 4)
+                    {
+                        timestamp = Convert.ToInt32(newParts[0]);
+                        x_acc = Convert.ToInt32(newParts[1]);
+                        y_acc = Convert.ToInt32(newParts[2]);
+                        z_acc = Convert.ToInt32(newParts[3]); 
+                    }
+                }
 
                 Sample sample = new Sample(timestamp, x_acc, y_acc, z_acc);
                 samples.Add(sample);
             }
 
-            // samples = this.lowPassFilter(samples, 10);
-            samples = this.butterLowPassFilter(samples);
+            samples = this.lowPassFilter(samples, 10);
+            //samples = this.butterLowPassFilter(samples);
             List<double> thresholds = this.calThresholds(samples, 40);
             List<int> stepTimes = this.countSteps(samples, thresholds);
             this.recordSteps(userId, sessionIndex, stepTimes);
