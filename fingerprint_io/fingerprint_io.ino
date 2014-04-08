@@ -21,6 +21,7 @@ void setup() {
 }
 
 void loop(){
+  /*
   if(Serial1.available()==12){
     if (readMsg()) {
       if (inData[8] == 0x30) {
@@ -42,14 +43,95 @@ void loop(){
       }
     }
   }
+  */
   
   // read from port 0, send to port 1:
   if (Serial.available()) {
     byte dummy = Serial.read();
     step = 1;
-    id = 4;
-    regFingerprint();
+    id = 6;
+    if(regFingerprintSerial()) {
+      Serial.println("success");
+    } else {
+      Serial.println("failure");
+    }
   }
+}
+
+bool regFingerprintSerial() {
+  byte value = 0x01;
+  sendCommand(0x21, id);          // check if the id has been enrolled
+  if (!readMsg()) {
+    return false;
+  }
+  if (inData[8] == 0x30) {
+    return false;
+  }
+  sendCommand(0x12, 0x01);        // turn on led
+  if (!readMsg()) {
+    return false;
+  }
+  sendCommand(0x22, id);          // start enrollment
+  if (!readMsg()) {
+    return false;
+  }
+  if (inData[8] == 0x31) {
+    return false;
+  }
+  while (value != 0x00) {         // keep checking for finger until it is detected
+    sendCommand(0x26, 0x00);
+    if (!readMsg()) {
+      return false;
+    }
+    if (inData[8] == 0x31) {
+      return false;
+    }
+    value = inData[4];
+  }
+  sendCommand(0x60, 0x00);        // capture first image
+  if (!readMsg()) {
+    return false;
+  }
+  if (inData[8] == 0x31) {
+    return false;
+  }
+  sendCommand(0x23, id);          // first enrollment
+  if (!readMsg()) {
+    return false;
+  }
+  if (inData[8] == 0x31) {
+    return false;
+  }
+  sendCommand(0x60, 0x00);        // capture second image
+  if (!readMsg()) {
+    return false;
+  }
+  if (inData[8] == 0x31) {
+    return false;
+  }
+  sendCommand(0x24, id);          // second enrollment
+  if (!readMsg()) {
+    return false;
+  }
+  if (inData[8] == 0x31) {
+    return false;
+  }
+  sendCommand(0x60, 0x00);        // capture third image
+  if (!readMsg()) {
+    return false;
+  }
+  if (inData[8] == 0x31) {
+    return false;
+  }
+  sendCommand(0x25, id);          // third enrollment
+  if (!readMsg()) {
+    return false;
+  }
+  if (inData[8] == 0x31) {
+    return false;
+  }
+  sendCommand(0x12, 0x00);        // turn off led
+  return true;
 }
 
 bool regFingerprint() {
@@ -103,6 +185,7 @@ bool regFingerprint() {
 
 bool readMsg()
 {
+  while (Serial1.available() < 12) {}
   Serial.println("=====");
   int i = 0;
   bool isCorrect = true;
@@ -111,6 +194,7 @@ bool readMsg()
   for (i = 0; i < 12; ++i) {
     while (!Serial1.available()) {}
     inChar = Serial1.read();
+    Serial.println(inChar, HEX);
     inData[i] = inChar;
     
     if (i == 0 && inChar != 0x55) {
@@ -131,7 +215,7 @@ bool readMsg()
     Serial.println("wrong with sum");
     isCorrect = false;
   }  
-  
+  Serial.println("=====");
   return isCorrect;
 }
 

@@ -1,7 +1,7 @@
 #include <Wire.h>          // for I2C interface
 #include <SD.h>            // for microSD shield interface
 
-#define DEVICE (0x53)      // Device 
+#define DEVICE (0x53)      // accelerometer id 
 
 byte _buff[6];
 File dataFile;
@@ -46,15 +46,21 @@ int SD_CS = 10;
 
 byte state = 0x00;
 
+// time in millis when authentication is performed
+long lastCheckedMillis = 0;
+
 // alarm function
 // TODO break it into two functions which will
 // be called to change frequency
 void alarm()
 {
   tone(PWMPORT, 500);
-  delay(500);
-  tone(PWMPORT, 200);
-  delay(500);
+}
+
+// dealarm function
+void dealarm()
+{
+  notone(PWMPORT);
 }
 
 void setup()
@@ -93,7 +99,7 @@ void loop()
   if (state == 0x10) {
     if (readPCCommand()) {
       switch (pcCommand) {
-        case 'a':
+        case 'a':                       // access device mode
           if (isInitialized())
           {
             Serial.write('o');
@@ -103,19 +109,19 @@ void loop()
             Serial.write('n');
           }
           break;
-        case 'd':
+        case 'd':                       // request for data synchronization
           transferNewData();
           break;
-        case 'u':
+        case 'u':                       // add new user
           addNewUser();
           break;
-        case 'i':
+        case 'i':                       // initialize device
           initialize();
           break;
         case 't':
           printProfile();
           break;
-        case 'p':      // for debug purpose
+        case 'p':                       // for debug purpose
           updateProfile(byte(1), byte(0));
           break;
         default:
@@ -124,7 +130,6 @@ void loop()
     }
   } else {  
     checkConnection();                          // only check for connection when it is not connected
-
     if (state == 0x00) {                        // uninitialized
       if (isInitialized()) 
       {
@@ -132,6 +137,7 @@ void loop()
       }
     }
     else if (state == 0x01) {                   // initialized not recording
+       alarm();
        byte id = getUserId();
        Serial.println(id);
        if (getUserId()) {       
@@ -146,6 +152,10 @@ void loop()
        }
     }
     else if (state == 0x02) {                      // recording
+      if (checkDeadline()) {
+        state = 0x01;                             // change to initialized state
+        break;
+      }
       readAccel();
       writeData(millis(), formattedData);
        
@@ -154,6 +164,17 @@ void loop()
       //sendCommandToFingerPrint();
     }
   }
+}
+
+bool checkDeadline()
+{
+  long curMillis = millis();
+
+  if (curMillis - lastCheckedMillis > 300000)
+  {
+    return true;
+  }
+  return false;
 }
 
 void printProfile()
@@ -181,11 +202,20 @@ void addNewUser()
 
   uid = Serial.read();
   
+  
+}
+
+/*
+ * add new user entry to profile
+ */
+void recordNewUser(byte uid)
+{
   dataFile = SD.open("profile.txt", FILE_WRITE);
   sprintf(strBuff, "%d,0", uid);
   dataFile.println(strBuff);
   dataFile.close();
 }
+
 
 /*
  * read one byte off serial port 
