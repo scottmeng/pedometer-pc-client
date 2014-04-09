@@ -69,6 +69,7 @@ namespace SerialPort_client.Frames
             }
 
             this.cmBoxUsers.ItemsSource = users;
+            this.cmBoxUsers.SelectedItem = users.Last();
         }
 
         private void makeConnection()
