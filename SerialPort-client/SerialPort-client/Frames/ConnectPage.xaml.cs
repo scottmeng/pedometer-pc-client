@@ -176,7 +176,7 @@ namespace SerialPort_client.Frames
                 distance += calDistancePerFrame(height, countInFrame);
             }
 
-            return distance;
+            return distance / 100;
         }
 
         private double calDistancePerFrame(double height, int stepsPerFrame)
@@ -605,7 +605,18 @@ namespace SerialPort_client.Frames
 
         private void btnAddUser_Click(object sender, RoutedEventArgs e)
         {
-            NavigationService.Navigate(new Uri("Frames/NewUserSetupPage.xaml", UriKind.Relative));
+            if (this.rdBtnNewUser.IsChecked == true)
+            {
+                NavigationService.Navigate(new Uri("Frames/NewUserSetupPage.xaml", UriKind.Relative));
+            }
+            else if (this.cmBoxUsers.SelectedItem == null)
+            {
+                MessageBox.Show("Please select an existing user!");
+            }
+            else
+            {
+                User selectedUser = this.cmBoxUsers.SelectedItem as User;
+            }
         }
 
         private void btnBack_Click(object sender, RoutedEventArgs e)

@@ -129,15 +129,22 @@ namespace SerialPort_client.Frames
                     this.drawRectangle(record.Min, record.Calories, width, maxCalories, Colors.DarkOrchid, this.canvasCalorie);
                 }
 
-                this.drawPath(sortedRecords, width, selectedSession.TotalCount, Colors.CadetBlue, this.canvasStepAccu);
-                this.drawPath(sortedRecords, width, selectedSession.TotalDistance, Colors.PaleVioletRed, this.canvasDistanceAccu);
-                this.drawPath(sortedRecords, width, selectedSession.TotalCalories, Colors.DarkOrchid, this.canvasCalorieAccu);
+                this.drawPath(sortedRecords, width, selectedSession.TotalCount, Colors.CadetBlue, 1, this.canvasStepAccu);
+                this.drawPath(sortedRecords, width, selectedSession.TotalDistance, Colors.PaleVioletRed, 2, this.canvasDistanceAccu);
+                this.drawPath(sortedRecords, width, selectedSession.TotalCalories, Colors.DarkOrchid, 3, this.canvasCalorieAccu);
             }
 
             this.displayStats();
         }
 
-        private void drawPath(List<History> records, double width, double height, Color color, Canvas canvas)
+        /*
+         * draw the accumulative path
+         * mode determines the statistics to show
+         * '1' - step counts
+         * '2' - distance
+         * '3' - calorie
+         */
+        private void drawPath(List<History> records, double width, double height, Color color, int mode, Canvas canvas)
         {
             Polyline path = new Polyline();
             path.Stroke = new SolidColorBrush(color);
@@ -150,14 +157,27 @@ namespace SerialPort_client.Frames
             foreach (History record in records)
             {
                 double x = record.Min / width * 300 + 20;
-                sum += record.Count;
+                switch (mode)
+                {
+                    case 1:
+                        sum += record.Count;
+                        break;
+                    case 2:
+                        sum += record.Distance;
+                        break;
+                    case 3:
+                        sum += record.Calories;
+                        break;
+                    default:
+                        break;
+                }
                 double y = (height - sum) / height * 100 + 40;
                 Point point = new Point(x, y);
                 points.Add(point);
 
                 // add textblock
                 TextBlock textBlock = new TextBlock();
-                textBlock.Text = sum.ToString();
+                textBlock.Text = sum.ToString("0.#");
                 textBlock.Foreground = new SolidColorBrush(color);
                 textBlock.FontSize = 10;
                 Canvas.SetLeft(textBlock, x);
@@ -194,7 +214,8 @@ namespace SerialPort_client.Frames
 
             // add textblock
             TextBlock textBlock = new TextBlock();
-            textBlock.Text = y.ToString();
+            textBlock.Text = y.ToString("0.#");
+            textBlock.FontSize = 10;
             textBlock.Foreground = new SolidColorBrush(color);
             Canvas.SetLeft(textBlock, 20 + x * 300 / (double)width);
             Canvas.SetBottom(textBlock, 45 + 100 * y / height);
@@ -267,6 +288,10 @@ namespace SerialPort_client.Frames
             }
         }
 
+        /*
+         * when accumulative mode is enabled
+         * show canvas that display accumulative data
+         */
         private void tgBtnAccumulativeEnable_Click(object sender, RoutedEventArgs e)
         {
             if ((sender as System.Windows.Controls.Primitives.ToggleButton).IsChecked ?? false)
