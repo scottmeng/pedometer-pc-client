@@ -1,4 +1,5 @@
 SerialPort-client/SerialPort-client.suo
-SerialPort-client/SerialPort-client/bin
+SerialPort-client/SerialPort-client/bin/*
+SerialPort-client/SerialPort-client/obj/*
 data-processing/processing
 
