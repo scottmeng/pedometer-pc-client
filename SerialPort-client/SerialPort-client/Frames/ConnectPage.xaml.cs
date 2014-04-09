@@ -37,9 +37,38 @@ namespace SerialPort_client.Frames
         {
             InitializeComponent();
 
-            butterworthFilter = new ButterworthFilter();
+            this.prefillComboBox();
             //makeConnection();
             //processData(1, 48);
+        }
+
+        private void prefillComboBox()
+        {
+            List<User> users = new List<User>();
+
+            using (SqlCeConnection con = new SqlCeConnection(conString))
+            {
+                con.Open();
+                // Read in all values in the table.
+                using (SqlCeCommand com = new SqlCeCommand("SELECT id, name, gender, age, height, weight FROM Users", con))
+                {
+                    SqlCeDataReader reader = com.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        int id = reader.GetInt32(0);
+                        string name = reader.GetString(1);
+                        string gender = reader.GetString(2);
+                        int age = reader.GetInt32(3);
+                        int height = reader.GetInt32(4);
+                        int weight = reader.GetInt32(5);
+
+                        User user = new User(id, name, gender, age, height, weight);
+                        users.Add(user);
+                    }
+                }
+            }
+
+            this.cmBoxUsers.ItemsSource = users;
         }
 
         private void makeConnection()
@@ -584,6 +613,30 @@ namespace SerialPort_client.Frames
             if (NavigationService.CanGoBack)
             {
                 NavigationService.GoBack();
+            }
+        }
+
+        private void rdBtnExistingUser_Click(object sender, RoutedEventArgs e)
+        {
+            if (this.rdBtnExistingUser.IsChecked == true)
+            {
+                this.cmBoxUsers.IsEnabled = true;
+            }
+            else
+            {
+                this.cmBoxUsers.IsEnabled = false;
+            }
+        }
+
+        private void rdBtnNewUser_Click(object sender, RoutedEventArgs e)
+        {
+            if (this.rdBtnExistingUser.IsChecked == true)
+            {
+                this.cmBoxUsers.IsEnabled = true;
+            }
+            else
+            {
+                this.cmBoxUsers.IsEnabled = false;
             }
         }
     }

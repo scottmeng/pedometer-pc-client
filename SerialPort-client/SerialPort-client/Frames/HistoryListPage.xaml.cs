@@ -119,13 +119,19 @@ namespace SerialPort_client.Frames
                 
                 int width = sortedRecords.Count;
                 double maxCount = sortedRecords.Max(record => record.Count);
+                double maxDistance = sortedRecords.Max(record => record.Distance);
+                double maxCalories = sortedRecords.Max(record => record.Calories);
 
                 foreach (History record in sortedRecords)
                 {
                     this.drawRectangle(record.Min, record.Count, width, maxCount, Colors.CadetBlue, this.canvasStep);
+                    this.drawRectangle(record.Min, record.Distance, width, maxDistance, Colors.PaleVioletRed, this.canvasDistance);
+                    this.drawRectangle(record.Min, record.Calories, width, maxCalories, Colors.DarkOrchid, this.canvasCalorie);
                 }
 
                 this.drawPath(sortedRecords, width, selectedSession.TotalCount, Colors.CadetBlue, this.canvasStepAccu);
+                this.drawPath(sortedRecords, width, selectedSession.TotalDistance, Colors.PaleVioletRed, this.canvasDistanceAccu);
+                this.drawPath(sortedRecords, width, selectedSession.TotalCalories, Colors.DarkOrchid, this.canvasCalorieAccu);
             }
 
             this.displayStats();
@@ -153,12 +159,22 @@ namespace SerialPort_client.Frames
                 TextBlock textBlock = new TextBlock();
                 textBlock.Text = sum.ToString();
                 textBlock.Foreground = new SolidColorBrush(color);
+                textBlock.FontSize = 10;
                 Canvas.SetLeft(textBlock, x);
-                Canvas.SetBottom(textBlock, sum / height * 100 + 40);
+                Canvas.SetBottom(textBlock, sum / height * 100 + 45);
                 canvas.Children.Add(textBlock);
 
                 // add point
-                
+                Ellipse ellipse = new Ellipse();
+                ellipse.Fill = new SolidColorBrush(color);
+                ellipse.Stroke = new SolidColorBrush(color);
+                ellipse.StrokeThickness = 1;
+
+                ellipse.Width = 4;
+                ellipse.Height = 4;
+                Canvas.SetLeft(ellipse, x);
+                Canvas.SetBottom(ellipse, sum / height * 100 + 35);
+                canvas.Children.Add(ellipse);
             }
 
             path.Points = points;

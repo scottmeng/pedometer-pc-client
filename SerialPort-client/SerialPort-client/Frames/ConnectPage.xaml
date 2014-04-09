@@ -6,11 +6,26 @@
       mc:Ignorable="d" Title="ConnectPage" Height="300" Width="405">
 
     <Grid Width="400">
-        <Button Content="Connect" Height="31" HorizontalAlignment="Left" Margin="12,12,0,0" Name="btnStart" VerticalAlignment="Top" Width="376" Click="btnStart_Click" IsEnabled="True"/>
-        <TextBlock Height="155" HorizontalAlignment="Left" Margin="12,78,0,0" Name="txtBlkData" Text="" VerticalAlignment="Top" Width="376" />
-        <TextBlock Height="16" HorizontalAlignment="Left" Margin="12,239,0,0" Name="txtBlkStatus" VerticalAlignment="Top" Width="376" />
-        <Button Content="Sync data" Height="23" HorizontalAlignment="Left" Margin="12,49,0,0" Name="btnSync" VerticalAlignment="Top" Width="186" Click="btnSync_Click" />
-        <Button Content="Register user" Height="23" HorizontalAlignment="Left" Margin="213,49,0,0" Name="btnAddUser" VerticalAlignment="Top" Width="175" Click="btnAddUser_Click" />
-        <Button Content="Back" Height="23" HorizontalAlignment="Left" Margin="12,265,0,0" Name="btnBack" VerticalAlignment="Top" Width="75" Click="btnBack_Click" />
+        <Button Content="Connect" Height="45" HorizontalAlignment="Left" Margin="12,12,0,0" Name="btnStart" VerticalAlignment="Top" Width="376" Click="btnStart_Click" IsEnabled="True"/>
+        <TextBlock Height="16" HorizontalAlignment="Left" Margin="12,63,0,0" Name="txtBlkStatus" VerticalAlignment="Top" Width="376" />
+        <Button Content="Sync data" HorizontalAlignment="Left" Margin="12,170,0,85" Name="btnSync" Width="186" Click="btnSync_Click" />
+        <Button Content="Register user" Height="45" HorizontalAlignment="Left" Margin="204,170,0,0" Name="btnAddUser" VerticalAlignment="Top" Width="184" Click="btnAddUser_Click" />
+        <Button Content="Back" Height="27" HorizontalAlignment="Left" Margin="12,261,0,0" Name="btnBack" VerticalAlignment="Top" Width="75" Click="btnBack_Click" />
+        <ComboBox Height="42" HorizontalAlignment="Left" Margin="204,122,0,0" Name="cmBoxUsers" VerticalAlignment="Top" Width="184" VerticalContentAlignment="Center">
+            <ComboBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid VerticalAlignment="Center">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="100" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="{Binding Name}" Grid.Column="0"/>
+                        <TextBlock Text="{Binding Id}" Grid.Column="1" VerticalAlignment="Center"/>
+                    </Grid>
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
+        <RadioButton Click="rdBtnNewUser_Click"  Content="New user" GroupName="UserType" Height="16" HorizontalAlignment="Left" Margin="204,100,0,0" Name="rdBtnNewUser" VerticalAlignment="Top" />
+        <RadioButton IsChecked="True" Click="rdBtnExistingUser_Click"  Content="Existing user" GroupName="UserType" Height="16" HorizontalAlignment="Left" Margin="303,100,0,0" Name="rdBtnExistingUser" VerticalAlignment="Top" />
     </Grid>
 </Page>

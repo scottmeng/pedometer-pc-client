@@ -70,6 +70,7 @@ namespace SerialPort_client.Frames
 
         private void btnAdd_Click(object sender, RoutedEventArgs e)
         {
+            this.ppUpFingerprint.IsOpen = true;
             if (isFormValid())
             {
                 string name = this.txtBxName.Text;
@@ -79,9 +80,14 @@ namespace SerialPort_client.Frames
                 int weight = (int)this.combBxWeight.SelectedItem;
 
                 int uid = this.addNewUserToDB(name, age, height, weight, gender);
+
+                
             }
         }
 
+        /*
+         * validate the add new user form
+         */
         private bool isFormValid()
         {
             if (string.IsNullOrEmpty(this.txtBxName.Text))
@@ -155,7 +161,6 @@ namespace SerialPort_client.Frames
             }
 
             return uid;
-
         }
     }
 }
