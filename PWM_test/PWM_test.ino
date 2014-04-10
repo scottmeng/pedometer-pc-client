@@ -15,8 +15,6 @@ word checksum = 0;
 byte highcheck = 0;
 byte lowcheck = 0;
 
-byte command = 1;
-byte parameter = 0;
 byte highbyte = 0;
 byte lowbyte = 0;
 
@@ -49,6 +47,10 @@ byte state = 0x00;
 // time in millis when authentication is performed
 long lastCheckedMillis = 0;
 
+
+char inData[20]; // Allocate some space for the string
+char inChar; // Where to store the character read
+
 // alarm function
 // TODO break it into two functions which will
 // be called to change frequency
@@ -60,7 +62,7 @@ void alarm()
 // dealarm function
 void dealarm()
 {
-  notone(PWMPORT);
+  noTone(PWMPORT);
 }
 
 void setup()
@@ -138,9 +140,9 @@ void loop()
     }
     else if (state == 0x01) {                   // initialized not recording
        alarm();
-       byte id = getUserId();
+       byte id = authenticateUser();
        Serial.println(id);
-       if (getUserId()) {       
+       if (id != 0) {                           // if id is non zero, user has been authen
          if(!createFile(id)) {
            Serial.println("SD card create data file failed!");
            return;
@@ -149,19 +151,15 @@ void loop()
          Serial.println(fileName);
          
          state = 0x02;                          // start recording
+         dealarm();
        }
     }
     else if (state == 0x02) {                      // recording
       if (checkDeadline()) {
         state = 0x01;                             // change to initialized state
-        break;
       }
       readAccel();
       writeData(millis(), formattedData);
-       
-      command = 0x12;
-      parameter = 0x01;
-      //sendCommandToFingerPrint();
     }
   }
 }
@@ -197,12 +195,13 @@ void printProfile()
  */
 void addNewUser()
 {
+  int test = 0;
   byte uid;
-  while (!Serial.available())
+  while (!Serial.available()){}
 
-  uid = Serial.read();
+  uid = Serial.read() - 0x30;
   
-  
+  Serial.println(uid);
 }
 
 /*
@@ -245,6 +244,7 @@ void checkConnection()
   if (Serial.available() > 0 && Serial.read() == 'a')
   {
     state = 0x10;                // change the state into "connected"
+    dealarm();                   // in case no fingerprint is scanned
     if (isInitialized())
     {
       Serial.write('o');
@@ -366,15 +366,6 @@ void notifyFileEnd()
   Serial.write(0x2D);
 }
 
-/*
- * identify the user through fingerprint
- * return the user id in one byte
- */
-char getUserId()
-{
-  return 1;
-}
-
 void initialize()
 {
   dataFile = SD.open("profile.txt", FILE_WRITE);
@@ -456,6 +447,163 @@ void readAccel() {
   Serial.println(formattedData);
 }
 
+/*
+ * read message from fingerprint sensor
+ * total number of bytes is 12
+ * 
+ */
+bool readMsg()
+{
+  while (Serial1.available() < 12) {}
+  byte i = 0;
+  word checkSum;
+  
+  for (i = 0; i < 12; ++i) {
+    while (!Serial1.available()) {}
+    inChar = Serial1.read();
+    inData[i] = inChar;
+    
+    if (i == 0 && inChar != 0x55) {
+      return false;
+    }
+    
+    if (i == 1 && inChar != 0xFFFFFFAA) {
+      return false;
+    }
+  }
+  
+  checkSum = 256;
+  for (i = 0; i < 10; ++i) {
+    checkSum += inData[i];
+  }
+  
+  if (highByte(checkSum) != inData[11] || lowByte(checkSum) != inData[10]) {
+    return false;
+  }  
+  return true;
+}
+
+/*
+ * identify the user through fingerprint
+ * return the user id in one byte
+ */
+byte authenticateUser()
+{
+  byte value;
+  
+  sendCommandToFingerPrint(0x12, 0x01);        // turn on led
+  if (!readMsg()) {
+    return false;
+  }
+  
+  sendCommandToFingerPrint(0x26, 0x00);
+  if (!readMsg()) {
+    return 0;
+  }
+  if (inData[8] == 0x31) {
+    return 0;
+  }
+  if (inData[4] != 0) {
+    return 0;  
+  }
+  
+  sendCommandToFingerPrint(0x60, 0x00);        // capture image
+  if (!readMsg()) {
+    return 0;
+  }
+  if (inData[8] == 0x31) {
+    return 0;
+  }
+  
+  sendCommandToFingerPrint(0x51, 0x00);
+  if (!readMsg()) {
+    return 0;
+  }
+  if (inData[8] == 0x31) {
+    return 0;
+  }
+  sendCommandToFingerPrint(0x12, 0x00);        // turn off led
+
+  Serial.println(inData[4]);
+  return inData[4];
+}
+
+bool regFingerprintSerial(byte id) {
+  byte value = 0x01;
+  sendCommandToFingerPrint(0x21, id);          // check if the id has been enrolled
+  if (!readMsg()) {
+    return false;
+  }
+  if (inData[8] == 0x30) {
+    return false;
+  }
+  sendCommandToFingerPrint(0x12, 0x01);        // turn on led
+  if (!readMsg()) {
+    return false;
+  }
+  sendCommandToFingerPrint(0x22, id);          // start enrollment
+  if (!readMsg()) {
+    return false;
+  }
+  if (inData[8] == 0x31) {
+    return false;
+  }
+  while (value != 0x00) {                     // keep checking for finger until it is detected
+    sendCommandToFingerPrint(0x26, 0x00);
+    if (!readMsg()) {
+      return false;
+    }
+    if (inData[8] == 0x31) {
+      return false;
+    }
+    value = inData[4];
+  }
+  sendCommandToFingerPrint(0x60, 0x00);        // capture first image
+  if (!readMsg()) {
+    return false;
+  }
+  if (inData[8] == 0x31) {
+    return false;
+  }
+  sendCommandToFingerPrint(0x23, id);          // first enrollment
+  if (!readMsg()) {
+    return false;
+  }
+  if (inData[8] == 0x31) {
+    return false;
+  }
+  sendCommandToFingerPrint(0x60, 0x00);        // capture second image
+  if (!readMsg()) {
+    return false;
+  }
+  if (inData[8] == 0x31) {
+    return false;
+  }
+  sendCommandToFingerPrint(0x24, id);          // second enrollment
+  if (!readMsg()) {
+    return false;
+  }
+  if (inData[8] == 0x31) {
+    return false;
+  }
+  sendCommandToFingerPrint(0x60, 0x00);        // capture third image
+  if (!readMsg()) {
+    return false;
+  }
+  if (inData[8] == 0x31) {
+    return false;
+  }
+  sendCommandToFingerPrint(0x25, id);          // third enrollment
+  if (!readMsg()) {
+    return false;
+  }
+  if (inData[8] == 0x31) {
+    return false;
+  }
+  sendCommandToFingerPrint(0x12, 0x00);        // turn off led
+  return true;
+}
+
 void writeTo(byte address, byte val) {
   Serial.println("1");
   Wire.beginTransmission(DEVICE); // start transmission to device 
@@ -486,9 +634,10 @@ void readFrom(byte address, int num, byte _buff[]) {
   Wire.endTransmission();         // end transmission
 }
 
-void sendCommandToFingerPrint(){
-  valueToWORD(parameter); 
-  calcChecksum(command, highbyte, lowbyte); //This function will calculate the checksum which tells the device that it received all the data
+// compose a message of 12 bytes and send to fingerprint sensor
+void sendCommandToFingerPrint(byte com, byte val){
+  valueToWORD(val); 
+  calcChecksum(com, highbyte, lowbyte); //This function will calculate the checksum which tells the device that it received all the data
   Serial1.write(0x55); //Command start code 1
   Serial1.write(0xaa); //Command start code 2
   Serial1.write(0x01); // This is the first byte for the device ID. It is the word 0x0001
@@ -497,7 +646,7 @@ void sendCommandToFingerPrint(){
   Serial1.write(highbyte); //Writing the second largest byte of the Parameter
   Serial1.write(0x00); //The datasheet says the parameter is a DWORD, but it never seems to go over the value of a word
   Serial1.write(0x00); //so I'm just sending it a word of data. These are the 2 remaining bytes of the Dword
-  Serial1.write(command); //write the command byte
+  Serial1.write(com); //write the command byte
   Serial1.write(0x00); //again, the commands don't go over a byte, but it is sent as a word, so I'm only sending a byte
   Serial1.write(lowcheck); //Writes the largest byte of the checksum
   Serial1.write(highcheck); //writes the smallest byte of the checksum
