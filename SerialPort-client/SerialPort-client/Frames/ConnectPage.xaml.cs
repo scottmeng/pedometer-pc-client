@@ -23,9 +23,8 @@ namespace SerialPort_client.Frames
     /// </summary>
     public partial class ConnectPage : Page
     {
-        private SerialPort port;
+        private SerialPort port = null;
         private bool connected = false;
-        private bool isTransferringByte = false;
         private List<string> newFileNames;
         private string allData;
 
@@ -441,28 +440,13 @@ namespace SerialPort_client.Frames
             return stepTimes;
         }
 
-        private void sendCommand(string command)
+        private void sendByte(byte command)
         {
             byte[] msg = new byte[1];
 
-            switch(command)
-            {
-                case "a":
-                    msg[0] = Convert.ToByte('a');
-                    break;
-                case "d":
-                    msg[0] = Convert.ToByte('d');
-                    break;
-                case "i":
-                    msg[0] = Convert.ToByte('i');
-                    break;
-                case "u":
-                    msg[0] = Convert.ToByte('u');
-                    break;
-                default:
-                    break;
-            }
-            if (!port.IsOpen)
+            msg[0] = command;
+
+            if (null != port && !port.IsOpen)
             {
                 port.Open();
             }
@@ -490,7 +474,7 @@ namespace SerialPort_client.Frames
 
                     if (port.IsOpen)
                     {
-                        this.sendCommand("a");
+                        this.sendByte(Convert.ToByte('a'));
                         port.ReadTimeout = 1000;
 
                         int deviceState = port.ReadByte();
@@ -601,7 +585,7 @@ namespace SerialPort_client.Frames
         {
             allData = "";
             newFileNames = new List<string>();
-            this.sendCommand("d");
+            this.sendByte(Convert.ToByte('d'));
         }
 
         private void btnAddUser_Click(object sender, RoutedEventArgs e)
@@ -617,6 +601,10 @@ namespace SerialPort_client.Frames
             else
             {
                 User selectedUser = this.cmBoxUsers.SelectedItem as User;
+                int uid = selectedUser.Id;
+
+                this.sendByte(Convert.ToByte('u'));
+                this.sendByte(Convert.ToByte(uid));
             }
         }
 

@@ -201,7 +201,7 @@ void addNewUser()
 
   uid = Serial.read() - 0x30;
   
-  Serial.println(uid);
+  recordNewUser(uid);
 }
 
 /*
@@ -213,6 +213,8 @@ void recordNewUser(byte uid)
   sprintf(strBuff, "%d,0", uid);
   dataFile.println(strBuff);
   dataFile.close();
+  
+  Serial.write(uid);            // notify PC client
 }
 
 
