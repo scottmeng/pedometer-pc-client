@@ -651,29 +651,5 @@ namespace SerialPort_client.Frames
                 NavigationService.GoBack();
             }
         }
-
-        private void rdBtnExistingUser_Click(object sender, RoutedEventArgs e)
-        {
-            if (this.rdBtnExistingUser.IsChecked == true)
-            {
-                this.cmBoxUsers.IsEnabled = true;
-            }
-            else
-            {
-                this.cmBoxUsers.IsEnabled = false;
-            }
-        }
-
-        private void rdBtnNewUser_Click(object sender, RoutedEventArgs e)
-        {
-            if (this.rdBtnExistingUser.IsChecked == true)
-            {
-                this.cmBoxUsers.IsEnabled = true;
-            }
-            else
-            {
-                this.cmBoxUsers.IsEnabled = false;
-            }
-        }
     }
 }

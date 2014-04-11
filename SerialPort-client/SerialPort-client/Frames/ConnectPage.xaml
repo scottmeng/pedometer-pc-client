@@ -26,14 +26,13 @@
                    Name="txtBlkStatus" VerticalAlignment="Stretch"
                    Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1"/>
         <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" Margin="10, 0" VerticalAlignment="Center">
-            <RadioButton IsChecked="True" Click="rdBtnExistingUser_Click"  
-                         Content="Existing user" GroupName="UserType" VerticalAlignment="Center"
+            <RadioButton IsChecked="False" Content="Existing user" 
+                         GroupName="UserType" VerticalAlignment="Center"
                          HorizontalAlignment="Left" Name="rdBtnExistingUser" 
                          Margin="4"/>
-            <RadioButton IsChecked="False" Click="rdBtnNewUser_Click"
-                         Content="New user" GroupName="UserType" VerticalAlignment="Center"
-                         HorizontalAlignment="Stretch" Name="rdBtnNewUser"
-                         Margin="4"/>
+            <RadioButton IsChecked="True" Content="New user" GroupName="UserType" 
+                         VerticalAlignment="Center" HorizontalAlignment="Stretch" 
+                         Name="rdBtnNewUser" Margin="4"/>
         </StackPanel>
 
         <Button Content="Sync data" HorizontalAlignment="Stretch" Name="btnSync" 
@@ -44,7 +43,7 @@
                 Click="btnAddUser_Click" Margin="10"/>
         <ComboBox HorizontalAlignment="Stretch" Margin="10" Name="cmBoxUsers" 
                   VerticalAlignment="Stretch" VerticalContentAlignment="Stretch"
-                  Grid.Row="3" Grid.Column="1">
+                  Grid.Row="3" Grid.Column="1" IsEnabled="{Binding IsChecked, ElementName=rdBtnExistingUser}">
             <ComboBox.ItemTemplate>
                 <DataTemplate>
                     <Grid VerticalAlignment="Center">
