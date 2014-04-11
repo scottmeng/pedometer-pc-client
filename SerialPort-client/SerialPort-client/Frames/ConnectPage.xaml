@@ -27,5 +27,15 @@
         </ComboBox>
         <RadioButton Click="rdBtnNewUser_Click"  Content="New user" GroupName="UserType" Height="16" HorizontalAlignment="Left" Margin="204,100,0,0" Name="rdBtnNewUser" VerticalAlignment="Top" />
         <RadioButton IsChecked="True" Click="rdBtnExistingUser_Click"  Content="Existing user" GroupName="UserType" Height="16" HorizontalAlignment="Left" Margin="303,100,0,0" Name="rdBtnExistingUser" VerticalAlignment="Top" />
+        <Popup Name="popUpScanFinger" Height="200" Width="300" Placement="Center">
+            <Border Background="AntiqueWhite" BorderBrush="Black">
+                <TextBlock Text="Please put your finger on the scanner." FontSize="14" TextWrapping="Wrap"/>
+            </Border>
+        </Popup>
+        <Popup Name="popUpTransferData" Height="200" Width="300" Placement="Center">
+            <Border Background="AntiqueWhite" BorderBrush="Black">
+                <TextBlock Text="Please wait while data is being synchronized." FontSize="14" TextWrapping="Wrap"/>
+            </Border>
+        </Popup>
     </Grid>
 </Page>

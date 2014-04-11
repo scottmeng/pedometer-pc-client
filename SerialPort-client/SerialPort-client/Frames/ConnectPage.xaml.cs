@@ -23,14 +23,25 @@ namespace SerialPort_client.Frames
     /// </summary>
     public partial class ConnectPage : Page
     {
+        // tuple to store uid and index
+        public struct fileName
+        {
+            public int Uid;
+            public int Index;
+
+            public fileName(int uid, int index)
+            {
+                this.Uid = uid;
+                this.Index = index;
+            }
+        }
+
         private SerialPort port = null;
         private bool connected = false;
-        private List<string> newFileNames;
+        private List<fileName> newFileNames;
         private string allData;
 
         private string conString = "Data Source=C:\\Users\\Kaizhi\\exerciseData.sdf;Password=admin;Persist Security Info=True";
-        private ButterworthFilter butterworthFilter;
-
 
         public ConnectPage()
         {
@@ -335,19 +346,6 @@ namespace SerialPort_client.Frames
             }
         }
 
-        private List<Sample> butterLowPassFilter(List<Sample> rawSamples)
-        {
-            List<Sample> filteredSamples = new List<Sample>();
-
-            foreach (Sample rawSample in rawSamples)
-            {
-                Sample filteredSample = new Sample(rawSample.TimeStamp, this.butterworthFilter.Filter(rawSample.TimeStamp));
-                filteredSamples.Add(filteredSample);
-            }
-
-            return filteredSamples;
-        }
-
         private List<Sample> lowPassFilter(List<Sample> rawSamples, int filterLength)
         {
             double average;
@@ -513,11 +511,14 @@ namespace SerialPort_client.Frames
             return new string(chars);
         }
 
+        private void port_ByteReceived(object sender, SerialDataReceivedEventArgs e)
+        {
+            int byteReceived = port.ReadByte();
+        }
+
         // event handler for receiving data
         private void port_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
-            int uid, index;
-            string fileName;
             int bytes = port.BytesToRead;
             byte[] comBuffer = new byte[bytes];
             port.Read(comBuffer, 0, bytes);         // every byte in this packet has been stored in the array
@@ -535,13 +536,18 @@ namespace SerialPort_client.Frames
                     if (part.Length != 0)
                     {
                         byte[] partData = System.Text.Encoding.ASCII.GetBytes(part);
-                        uid = (int)partData[0];
-                        index = (int)partData[1];
+                        int uid = (int)partData[0];
+                        int index = (int)partData[1];
                         partData = partData.Skip(2).ToArray<byte>();
 
-                        fileName = uid.ToString() + "_" + index.ToString() + ".txt";
-                        newFileNames.Add(fileName);
-                        this.ByteArrayToFile(fileName, partData);
+                        string file = uid.ToString() + "_" + index.ToString() + ".txt";
+
+                        // if data is successfully storing in txt file
+                        // store the uid and index
+                        if (this.ByteArrayToFile(file, partData))
+                        {
+                            newFileNames.Add(new fileName(uid, index));
+                        }
                     }
                 }
             }            
@@ -573,9 +579,7 @@ namespace SerialPort_client.Frames
 
                 return true;
             }
-            catch (Exception _Exception)
-            {
-            }
+            catch (Exception _Exception) {}
 
             // error occured, return false
             return false;
@@ -583,9 +587,13 @@ namespace SerialPort_client.Frames
 
         private void btnSync_Click(object sender, RoutedEventArgs e)
         {
-            allData = "";
-            newFileNames = new List<string>();
+            this.popUpTransferData.IsOpen = true;
+
+            newFileNames = new List<fileName>();
+            allData = string.Empty;
+            /*
             this.sendByte(Convert.ToByte('d'));
+            */
         }
 
         private void btnAddUser_Click(object sender, RoutedEventArgs e)
