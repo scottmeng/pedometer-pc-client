@@ -53,7 +53,7 @@ namespace SerialPort_client.Frames
         // page loaded event
         private void ConnectPage_Load(object sender, RoutedEventArgs e)
         {
-            this.makeConnection();
+            //this.makeConnection();
         }
 
         // fill in comboboxes with options

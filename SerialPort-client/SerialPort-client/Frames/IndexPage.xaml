@@ -3,12 +3,17 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-      mc:Ignorable="d" 
-      d:DesignHeight="300" d:DesignWidth="404"
-	Title="IndexPage">
+      mc:Ignorable="d" Width="500" Height="400"
+      Title="IndexPage">
 
-    <Grid Width="400">
-        <Button Content="Connect Pedometer" Height="130" HorizontalAlignment="Left" Margin="12,12,0,0" Name="btnConnect" VerticalAlignment="Top" Width="376" Click="btnConnect_Click" />
-        <Button Content="View History" Height="140" HorizontalAlignment="Left" Margin="12,148,0,0" Name="btnView" VerticalAlignment="Top" Width="376" Click="btnView_Click" />
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Button Content="Connect Pedometer" HorizontalAlignment="Stretch" Margin="10" Name="btnConnect" 
+                VerticalAlignment="Stretch" Click="btnConnect_Click" Grid.Row="0" FontSize="18"/>
+        <Button Content="View History" HorizontalAlignment="Stretch" Margin="10" Name="btnView" 
+                VerticalAlignment="Stretch" Click="btnView_Click" Grid.Row="1" FontSize="18" />
     </Grid>
 </Page>

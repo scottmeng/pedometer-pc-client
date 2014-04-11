@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:System.Windows.Controls;assembly=PresentationFramework"
         Title="Pedometer Client" SizeToContent="WidthAndHeight" 
-        MinHeight="400" MaxHeight="400" MinWidth="500" MaxWidth="500" 
+        MinHeight="450" MaxHeight="450" MinWidth="500" MaxWidth="550" 
         ResizeMode="NoResize">
     <Grid>
         <local:Frame Name="MainFrame" NavigationUIVisibility="Hidden" Source="Frames/IndexPage.xaml">

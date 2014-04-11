@@ -6,12 +6,12 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:l="clr-namespace:SerialPort_client.Frames"
-      mc:Ignorable="d" MinHeight="400" MaxHeight="600" MinWidth="500" MaxWidth="750"
+      mc:Ignorable="d" Height="400" Width="500"
 	Title="HistoryListPage">
     <Page.Resources>
         <l:ShowNewDataTagConverter x:Key="ShowNewDataTagConverter" />
     </Page.Resources>
-    <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+    <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="*" />
@@ -19,7 +19,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
             <RowDefinition Height="3*" />
-            <RowDefinition Height="0.5*" />
+            <RowDefinition Height="0.6*" />
         </Grid.RowDefinitions>
         <ListBox HorizontalAlignment="Stretch" Margin="5" Name="lstBoxUser" 
                  VerticalAlignment="Stretch" PreviewMouseDown="lstBoxUser_PreviewMouseDown"
@@ -88,8 +88,8 @@
             <TextBlock TextWrapping="Wrap" Name="txtBlkNoSelection" Text="No exercise session is currently selected" TextAlignment="Center" VerticalAlignment="Center"
                        FontSize="18"/>
         </Border>
-        <Button Content="Back" HorizontalAlignment="Stretch" Margin="5" Name="btnBack" 
-                VerticalAlignment="Stretch" Click="btnBack_Click" 
+        <Button Content="Back" HorizontalAlignment="Left" Margin="10" Name="btnBack" 
+                VerticalAlignment="Bottom" Click="btnBack_Click" Width="100" Height="30"
                 Grid.Column="0" Grid.Row="2"/>
     </Grid>
 </Page>
