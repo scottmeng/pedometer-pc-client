@@ -469,7 +469,7 @@ namespace SerialPort_client.Frames
 
             foreach (string portName in portNames)
             {
-                port = new SerialPort(portName, 9600);
+                port = new SerialPort(portName, 115200);
                 port.DtrEnable = true;
                 port.RtsEnable = true;              // set flags to be true to enable receiving
 
