@@ -73,7 +73,7 @@ void setup()
   pinMode(RXLED, OUTPUT);                 // Set RX LED as an output
   pinMode(SD_CS, OUTPUT);                 // Set pin 18 as output (SD card CS)
  
-  Serial.begin(9600);                     // This pipes to the serial monitor
+  Serial.begin(115200);                     // This pipes to the serial monitor
   Serial.println("USB serial connection established.");
   
   Serial1.begin(9600);                    // Set up fingerprint sensor interface
