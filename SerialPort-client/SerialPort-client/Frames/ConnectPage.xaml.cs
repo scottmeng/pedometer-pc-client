@@ -37,9 +37,14 @@ namespace SerialPort_client.Frames
         }
 
         private SerialPort port = null;
-        private bool connected = false;
+        private int deviceStatus = 0;
         private List<fileName> newFileNames;
         private string allData;
+        private int lastCommand;
+        private int lastParam;
+        private int totalNumOfFiles = 0;
+        private int curNumOfFiles = 0;
+        private SerialDataReceivedEventHandler onByteReceived, onDataReceived;
 
         private string conString = "Data Source=C:\\Users\\Kaizhi\\exerciseData.sdf;Password=admin;Persist Security Info=True";
 
@@ -48,6 +53,8 @@ namespace SerialPort_client.Frames
             InitializeComponent();
 
             this.prefillComboBox();
+            this.onByteReceived = new SerialDataReceivedEventHandler(port_ByteReceived);
+            this.onDataReceived = new SerialDataReceivedEventHandler(port_DataReceived);
         }
 
         // page loaded event
@@ -93,14 +100,20 @@ namespace SerialPort_client.Frames
             this.txtBlkStatus.Text = "Connecting";
             this.txtBlkStatus.Foreground = Brushes.Orange;
 
-            connected = checkPedometerConnection();
+            deviceStatus = checkPedometerConnection();
 
-            if (connected)
+            // TODO: change to data binding and style
+            if (deviceStatus != 0)
             {
                 this.btnAddUser.IsEnabled = true;
                 this.btnSync.IsEnabled = true;
                 this.txtBlkStatus.Text = "Connected through " + port.PortName;
                 this.txtBlkStatus.Foreground = Brushes.Green;
+
+                if (this.deviceStatus == 'n')
+                {
+                    MessageBox.Show("This device is a brand new device and has been initialized. Please register users under this device.");
+                }
             }
             else
             {
@@ -463,7 +476,7 @@ namespace SerialPort_client.Frames
         }
 
         // send a request to every available COM port
-        private bool checkPedometerConnection()
+        private int checkPedometerConnection()
         {
             string[] portNames = SerialPort.GetPortNames();
 
@@ -488,8 +501,8 @@ namespace SerialPort_client.Frames
                         int deviceState = port.ReadByte();
                         if (deviceState == 'n' || deviceState == 'o')
                         {
-                            port.DataReceived += new SerialDataReceivedEventHandler(port_DataReceived);
-                            return true;
+                            port.DataReceived += this.onByteReceived;           // hook up event handler
+                            return deviceState;
                         }
                     }
                 }
@@ -499,7 +512,7 @@ namespace SerialPort_client.Frames
                 }
             }
 
-            return false;
+            return 0;
         }
 
         private void btnStart_Click(object sender, RoutedEventArgs e)
@@ -524,6 +537,29 @@ namespace SerialPort_client.Frames
         private void port_ByteReceived(object sender, SerialDataReceivedEventArgs e)
         {
             int byteReceived = port.ReadByte();
+            switch (this.lastCommand)
+            {
+                case 'd':                                   // sync data command
+                    this.totalNumOfFiles = byteReceived;
+                    this.curNumOfFiles = 0;
+                    // TODO: invoke progress bar
+                    port.DataReceived -= this.onByteReceived;
+                    port.DataReceived += this.onDataReceived;
+                    break;
+                case 'u':                                   // add user command
+                    // TODO: invoke popup hiding
+                    if (byteReceived == this.lastParam)
+                    {
+                        MessageBox.Show("User has been successfully added!");
+                    }
+                    else
+                    {
+                        MessageBox.Show("Adding user was not successful. Please try again later.");
+                    }
+                    break;
+                default:
+                    break;
+            }
         }
 
         // event handler for receiving data
@@ -535,6 +571,8 @@ namespace SerialPort_client.Frames
 
             string buf = System.Text.Encoding.ASCII.GetString(comBuffer);
             allData += buf;
+
+            this.curNumOfFiles += buf.Count(f => f == '+') / 2;             // cumulate the number of files
 
             if (buf.Contains("--"))
             {
@@ -565,6 +603,10 @@ namespace SerialPort_client.Frames
                 {
                     this.processData(newFileName.Uid, newFileName.Index);
                 }
+
+                // revert back to use the byte received event handler
+                port.DataReceived -= this.onDataReceived;
+                port.DataReceived += this.onByteReceived;
 
                 // hide popup box when data transfer and processing is completed
                 Dispatcher.BeginInvoke((Action)delegate()
