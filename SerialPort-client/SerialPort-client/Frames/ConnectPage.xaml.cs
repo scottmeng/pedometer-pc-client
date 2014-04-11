@@ -48,10 +48,15 @@ namespace SerialPort_client.Frames
             InitializeComponent();
 
             this.prefillComboBox();
-            //makeConnection();
-            //processData(1, 48);
         }
 
+        // page loaded event
+        private void ConnectPage_Load(object sender, RoutedEventArgs e)
+        {
+            this.makeConnection();
+        }
+
+        // fill in comboboxes with options
         private void prefillComboBox()
         {
             List<User> users = new List<User>();
@@ -92,14 +97,20 @@ namespace SerialPort_client.Frames
 
             if (connected)
             {
+                this.btnAddUser.IsEnabled = true;
+                this.btnSync.IsEnabled = true;
                 this.txtBlkStatus.Text = "Connected through " + port.PortName;
                 this.txtBlkStatus.Foreground = Brushes.Green;
             }
             else
             {
+                this.btnAddUser.IsEnabled = false;
+                this.btnSync.IsEnabled = false;
                 this.btnStart.IsEnabled = true;
                 this.txtBlkStatus.Text = "Not connected";
                 this.txtBlkStatus.Foreground = Brushes.Red;
+
+                MessageBox.Show("No device is detected.");
             }
         }
 
@@ -155,7 +166,6 @@ namespace SerialPort_client.Frames
             }
 
             samples = this.lowPassFilter(samples, 10);
-            //samples = this.butterLowPassFilter(samples);
             List<double> thresholds = this.calThresholds(samples, 40);
             List<int> stepTimes = this.countSteps(samples, thresholds);
             this.recordSteps(userId, sessionIndex, stepTimes);
@@ -550,6 +560,17 @@ namespace SerialPort_client.Frames
                         }
                     }
                 }
+
+                foreach ( fileName newFileName in newFileNames)
+                {
+                    this.processData(newFileName.Uid, newFileName.Index);
+                }
+
+                // hide popup box when data transfer and processing is completed
+                Dispatcher.BeginInvoke((Action)delegate()
+                {
+                    this.popUpTransferData.IsOpen = false;
+                });
             }            
         }
 
@@ -596,6 +617,14 @@ namespace SerialPort_client.Frames
             */
         }
 
+        private void addUser(int uid)
+        {
+            this.sendByte(Convert.ToByte('u'));
+            this.sendByte(Convert.ToByte(uid));
+
+            this.popUpScanFinger.IsOpen = true;
+        }
+
         private void btnAddUser_Click(object sender, RoutedEventArgs e)
         {
             if (this.rdBtnNewUser.IsChecked == true)
@@ -611,8 +640,7 @@ namespace SerialPort_client.Frames
                 User selectedUser = this.cmBoxUsers.SelectedItem as User;
                 int uid = selectedUser.Id;
 
-                this.sendByte(Convert.ToByte('u'));
-                this.sendByte(Convert.ToByte(uid));
+                this.addUser(uid);
             }
         }
 
