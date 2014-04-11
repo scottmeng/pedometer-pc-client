@@ -6,22 +6,31 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:l="clr-namespace:SerialPort_client.Frames"
-      mc:Ignorable="d" 
-      d:DesignHeight="331" d:DesignWidth="404"
+      mc:Ignorable="d" MinHeight="400" MaxHeight="600" MinWidth="500" MaxWidth="750"
 	Title="HistoryListPage">
     <Page.Resources>
         <l:ShowNewDataTagConverter x:Key="ShowNewDataTagConverter" />
     </Page.Resources>
-    <Grid Width="400">
-        <ListBox Height="66" HorizontalAlignment="Left" Margin="12,12,0,0" Name="lstBoxUser" VerticalAlignment="Top" Width="180" 
-                 PreviewMouseDown="lstBoxUser_PreviewMouseDown">
+    <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="3*" />
+            <RowDefinition Height="0.5*" />
+        </Grid.RowDefinitions>
+        <ListBox HorizontalAlignment="Stretch" Margin="5" Name="lstBoxUser" 
+                 VerticalAlignment="Stretch" PreviewMouseDown="lstBoxUser_PreviewMouseDown"
+                 Grid.Column="0" Grid.Row="0">
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <Grid Width="180">
+                    <Grid Width="200">
                         <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="3*" />
                             <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="60" />
-                            <ColumnDefinition Width="60" />
+                            <ColumnDefinition Width="0.5*" />
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="{Binding Name}" Grid.Column="0"/>
                         <TextBlock Text="{Binding Age}" Grid.Column="1"/>
@@ -30,15 +39,16 @@
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-        <ListBox Height="66" HorizontalAlignment="Right" Margin="0,12,11,0" Name="lstBoxHistory" VerticalAlignment="Top" Width="180"
-                 PreviewMouseDown="lstBoxHistory_PreviewMouseDown">
+        <ListBox HorizontalAlignment="Stretch" Margin="5" Name="lstBoxHistory" 
+                 VerticalAlignment="Stretch" PreviewMouseDown="lstBoxHistory_PreviewMouseDown"
+                 Grid.Column="1" Grid.Row="0">
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <Grid Width="180">
+                    <Grid Width="200">
                         <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="3*" />
                             <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="60" />
-                            <ColumnDefinition Width="60" />
+                            <ColumnDefinition Width="0.5*" />
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="{Binding DateDisplay}" Grid.Column="0"/>
                         <TextBlock Text="{Binding TotalCount}" Grid.Column="1"/>
@@ -46,9 +56,11 @@
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-        <Button Content="Back" Height="23" HorizontalAlignment="Left" Margin="12,296,0,0" Name="btnBack" VerticalAlignment="Top" Width="75" Click="btnBack_Click" />
-        <Grid Margin="0,84,11,41" HorizontalAlignment="Right" Width="377" Name="gridStats" Visibility="Hidden">
-            <TabControl Height="206" HorizontalAlignment="Left" Name="tabStats" VerticalAlignment="Top" Width="376">
+        <Grid HorizontalAlignment="Stretch" Name="gridStats" Visibility="Hidden"
+              Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" Margin="5"
+              VerticalAlignment="Stretch">
+            <TabControl HorizontalAlignment="Stretch" Name="tabStats" 
+                        VerticalAlignment="Stretch">
                 <TabItem Header="Step count" Name="tabStep" FontSize="14" >
                     <Grid>
                         <Canvas Height="auto" Width="auto" Name="canvasStep"/>
@@ -70,9 +82,14 @@
             </TabControl>
             <ToggleButton Content="Accumulative Mode" FontSize="10" HorizontalAlignment="Right" Name="TgBtnAccumulativeEnable" VerticalAlignment="Top" Margin="5,5" Click="tgBtnAccumulativeEnable_Click"/>
         </Grid>
-        <Border BorderBrush="Green" BorderThickness="2" Height="206" HorizontalAlignment="Left" Margin="12,84,0,0" Name="border1" VerticalAlignment="Top" Width="376" CornerRadius="6">
+        <Border BorderBrush="Green" BorderThickness="2" HorizontalAlignment="Stretch" 
+                Name="border1" VerticalAlignment="Stretch" CornerRadius="6"
+                Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" Margin="5">
             <TextBlock TextWrapping="Wrap" Name="txtBlkNoSelection" Text="No exercise session is currently selected" TextAlignment="Center" VerticalAlignment="Center"
                        FontSize="18"/>
         </Border>
+        <Button Content="Back" HorizontalAlignment="Stretch" Margin="5" Name="btnBack" 
+                VerticalAlignment="Stretch" Click="btnBack_Click" 
+                Grid.Column="0" Grid.Row="2"/>
     </Grid>
 </Page>
