@@ -539,15 +539,22 @@ namespace SerialPort_client.Frames
             int byteReceived = port.ReadByte();
             switch (this.lastCommand)
             {
-                case 'd':                                   // sync data command
+                case 'n':                                   // get number of new files command
                     this.totalNumOfFiles = byteReceived;
                     this.curNumOfFiles = 0;
+
+                    this.sendByte(Convert.ToByte('d'));     // send sync data command
                     // TODO: invoke progress bar
                     port.DataReceived -= this.onByteReceived;
                     port.DataReceived += this.onDataReceived;
                     break;
                 case 'u':                                   // add user command
-                    // TODO: invoke popup hiding
+                    // hide popup box when adding user is completed
+                    Dispatcher.BeginInvoke((Action)delegate()
+                    {
+                        this.popUpScanFinger.IsOpen = false;
+                    });
+
                     if (byteReceived == this.lastParam)
                     {
                         MessageBox.Show("User has been successfully added!");
@@ -654,9 +661,8 @@ namespace SerialPort_client.Frames
 
             newFileNames = new List<fileName>();
             allData = string.Empty;
-            /*
-            this.sendByte(Convert.ToByte('d'));
-            */
+            
+            this.sendByte(Convert.ToByte('n'));
         }
 
         private void addUser(int uid)
