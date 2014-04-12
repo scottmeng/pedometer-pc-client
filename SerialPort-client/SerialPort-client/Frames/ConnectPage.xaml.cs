@@ -581,7 +581,14 @@ namespace SerialPort_client.Frames
             string buf = System.Text.Encoding.ASCII.GetString(comBuffer);
             allData += buf;
 
-            this.curNumOfFiles += buf.Count(f => f == '+') / 2;             // cumulate the number of files
+            // cumulate the number of files
+            this.curNumOfFiles += buf.Count(f => f == '+') / 2;             
+            
+            // update the progress bar
+            Dispatcher.BeginInvoke((Action)delegate()
+            {
+                this.pgBarDataTransfer.Value = 100 * this.curNumOfFiles / this.totalNumOfFiles;
+            });
 
             if (buf.Contains("--"))
             {

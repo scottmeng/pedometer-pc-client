@@ -66,9 +66,13 @@
             </Border>
         </Popup>
         <Popup Name="popUpTransferData" Height="200" Width="300" Placement="Center">
-            <Border Background="AntiqueWhite" BorderBrush="Black">
-                <TextBlock Text="Please wait while data is being synchronized." FontSize="14" TextWrapping="Wrap"/>
-            </Border>
+            <StackPanel>
+                <Border Background="AntiqueWhite" BorderBrush="Black">
+                    <TextBlock Text="Please wait while data is being synchronized." FontSize="14" TextWrapping="Wrap"/>
+                </Border>
+                <ProgressBar Name="pgBarDataTransfer" Height="10" Width="120" HorizontalAlignment="Center"
+                             Minimum="0" Maximum="100" Value="0"/>
+            </StackPanel>
         </Popup>
     </Grid>
 </Page>
