@@ -114,6 +114,9 @@ void loop()
         case 'd':                       // request for data synchronization
           transferNewData();
           break;
+        case 'n':
+          countNewFiles();              // return the number of new files
+          break;
         case 'u':                       // add new user
           addNewUser();
           break;
@@ -256,6 +259,30 @@ void checkConnection()
       Serial.write('n');
     }
   }
+}
+
+void countNewFiles()
+{
+  byte dummy, userid, index, numOfNewFiles = 0;
+  
+  dataFile = SD.open("profile.txt");
+  while (dataFile.available())
+  {
+    userid = dataFile.read();
+    dummy = dataFile.read();
+    index = dataFile.read();
+    dummy = dataFile.read();
+    dummy = dataFile.read();  
+   
+    sprintf(fileName, "%d_%d.txt", userid, index);
+    while (SD.exists(fileName))
+    {
+      index += 1;
+      numOfNewFiles += 1;
+      sprintf(fileName, "%d_%d.txt", userid, index);  
+    }
+  }
+  Serial.write(numOfNewFiles);
 }
 
 /*
