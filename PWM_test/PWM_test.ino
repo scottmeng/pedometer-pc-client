@@ -111,6 +111,9 @@ void loop()
             Serial.write('n');
           }
           break;
+        case 'c':
+          clearHistory();
+          break;
         case 'd':                       // request for data synchronization
           transferNewData();
           break;
@@ -167,6 +170,11 @@ void loop()
   }
 }
 
+void clearHistory()
+{
+  SD.remove("profile.txt");
+}
+
 bool checkDeadline()
 {
   long curMillis = millis();
@@ -186,7 +194,7 @@ void printProfile()
   while (dataFile.available())
   {
     dummy = dataFile.read();
-    Serial.println(dummy, HEX);
+    Serial.println(dummy);
   }
   dataFile.close();
 }
@@ -198,12 +206,11 @@ void printProfile()
  */
 void addNewUser()
 {
-  int test = 0;
   byte uid;
   while (!Serial.available()){}
 
-  uid = Serial.read() - 0x30;
-  
+  uid = Serial.read();
+  //Serial.write(uid);
   recordNewUser(uid);
 }
 
@@ -212,12 +219,22 @@ void addNewUser()
  */
 void recordNewUser(byte uid)
 {
-  dataFile = SD.open("profile.txt", FILE_WRITE);
-  sprintf(strBuff, "%d,0", uid);
-  dataFile.println(strBuff);
-  dataFile.close();
-  
-  Serial.write(uid);            // notify PC client
+  if (regFingerprintSerial(uid))
+  {
+    dataFile = SD.open("profile.txt", FILE_WRITE);
+    dataFile.write(uid);
+    dataFile.write(',');
+    dataFile.write(byte(0));
+    dataFile.write('\r');
+    dataFile.write('\n');
+    dataFile.close();
+    
+    //Serial.println(uid);
+    Serial.write(uid);            // notify PC client
+    return;
+  }
+  //Serial.println(255);
+  Serial.write(255);
 }
 
 
@@ -401,16 +418,6 @@ void initialize()
   Serial.println("profile.txt created! Device initialized");
   
   // testing purpose only, to be deleted
-  dataFile.write(byte(1));
-  dataFile.write(',');
-  dataFile.write(byte(0));
-  dataFile.write('\r');
-  dataFile.write('\n');
-  dataFile.write(byte(2));
-  dataFile.write(',');
-  dataFile.write(byte(0));
-  dataFile.write('\r');
-  dataFile.write('\n');
   dataFile.write(byte(3));
   dataFile.write(',');
   dataFile.write(byte(0));

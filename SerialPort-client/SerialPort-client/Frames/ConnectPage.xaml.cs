@@ -543,10 +543,12 @@ namespace SerialPort_client.Frames
                     this.totalNumOfFiles = byteReceived;
                     this.curNumOfFiles = 0;
 
-                    this.sendByte(Convert.ToByte('d'));     // send sync data command
-                    // TODO: invoke progress bar
                     port.DataReceived -= this.onByteReceived;
                     port.DataReceived += this.onDataReceived;
+
+                    this.sendByte(Convert.ToByte('d'));     // send sync data command
+                    // TODO: invoke progress bar
+                    
                     break;
                 case 'u':                                   // add user command
                     // hide popup box when adding user is completed
@@ -661,12 +663,15 @@ namespace SerialPort_client.Frames
 
             newFileNames = new List<fileName>();
             allData = string.Empty;
-            
+
+            this.lastCommand = 'n';
             this.sendByte(Convert.ToByte('n'));
         }
 
         private void addUser(int uid)
         {
+            this.lastCommand = 'u';
+            this.lastParam = uid;
             this.sendByte(Convert.ToByte('u'));
             this.sendByte(Convert.ToByte(uid));
 
