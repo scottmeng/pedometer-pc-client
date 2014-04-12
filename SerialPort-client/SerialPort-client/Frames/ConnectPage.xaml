@@ -61,16 +61,17 @@
                 Name="btnBack" VerticalAlignment="Bottom" Height="30" Click="btnBack_Click" 
                 Grid.Column="0" Grid.Row="5"/>
         <Popup Name="popUpScanFinger" Height="200" Width="300" Placement="Center">
-            <Border Background="AntiqueWhite" BorderBrush="Black">
+            <Border Background="AntiqueWhite" BorderBrush="Black" 
+                    VerticalAlignment="Center ">
                 <TextBlock Text="Please put your finger on the scanner." FontSize="14" TextWrapping="Wrap"/>
             </Border>
         </Popup>
         <Popup Name="popUpTransferData" Height="200" Width="300" Placement="Center">
-            <StackPanel>
+            <StackPanel VerticalAlignment="Center">
                 <Border Background="AntiqueWhite" BorderBrush="Black">
                     <TextBlock Text="Please wait while data is being synchronized." FontSize="14" TextWrapping="Wrap"/>
                 </Border>
-                <ProgressBar Name="pgBarDataTransfer" Height="10" Width="120" HorizontalAlignment="Center"
+                <ProgressBar Name="pgBarDataTransfer" Height="20" Margin="10" HorizontalAlignment="Stretch"
                              Minimum="0" Maximum="100" Value="0"/>
             </StackPanel>
         </Popup>

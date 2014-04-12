@@ -286,6 +286,11 @@ namespace SerialPort_client.Frames
 
         private void recordSteps(int userId, int sessionIndex, List<int> stepTimes)
         {
+            // error handling, when no step was detected
+            if (stepTimes.Count == 0)
+            {
+                return;
+            }
             int startTime = stepTimes[0];
             int curMin = 1;
             int countInMin = 0;
@@ -543,11 +548,26 @@ namespace SerialPort_client.Frames
                     this.totalNumOfFiles = byteReceived;
                     this.curNumOfFiles = 0;
 
-                    port.DataReceived -= this.onByteReceived;
-                    port.DataReceived += this.onDataReceived;
+                    if (this.totalNumOfFiles != 0)
+                    {
+                        port.DataReceived -= this.onByteReceived;
+                        port.DataReceived += this.onDataReceived;
 
-                    this.sendByte(Convert.ToByte('d'));     // send sync data command
-                    // TODO: invoke progress bar
+                        this.sendByte(Convert.ToByte('d'));     // send sync data command
+                        
+                        //invoke progress bar
+                        Dispatcher.BeginInvoke((Action)delegate()
+                        {
+                            this.popUpTransferData.IsOpen = true;
+                        });
+                    }
+                    else
+                    {
+                        Dispatcher.BeginInvoke((Action)delegate()
+                        {
+                            MessageBox.Show("Data is synchronized.");
+                        });
+                    }
                     
                     break;
                 case 'u':                                   // add user command
@@ -666,8 +686,6 @@ namespace SerialPort_client.Frames
 
         private void btnSync_Click(object sender, RoutedEventArgs e)
         {
-            this.popUpTransferData.IsOpen = true;
-
             newFileNames = new List<fileName>();
             allData = string.Empty;
 
