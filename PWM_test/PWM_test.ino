@@ -400,6 +400,7 @@ void initialize()
   dataFile = SD.open("profile.txt", FILE_WRITE);
   Serial.println("profile.txt created! Device initialized");
   
+  // testing purpose only, to be deleted
   dataFile.write(byte(1));
   dataFile.write(',');
   dataFile.write(byte(0));
