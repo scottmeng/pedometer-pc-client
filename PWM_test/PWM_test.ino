@@ -147,8 +147,9 @@ void loop()
     else if (state == 0x01) {                   // initialized not recording
        alarm();
        byte id = authenticateUser();
-       Serial.println(id);
-       if (id != 0) {                           // if id is non zero, user has been authen
+       //Serial.println(id);
+       if (id != 20) {                           // if id is non zero, user has been authen
+         dealarm();
          if(!createFile(id)) {
            Serial.println("SD card create data file failed!");
            return;
@@ -157,7 +158,7 @@ void loop()
          Serial.println(fileName);
          
          state = 0x02;                          // start recording
-         dealarm();
+         
        }
     }
     else if (state == 0x02) {                      // recording
@@ -222,6 +223,7 @@ void recordNewUser(byte uid)
   if (regFingerprintSerial(uid))
   {
     dataFile = SD.open("profile.txt", FILE_WRITE);
+      
     dataFile.write(uid);
     dataFile.write(',');
     dataFile.write(byte(0));
@@ -234,7 +236,7 @@ void recordNewUser(byte uid)
     return;
   }
   //Serial.println(255);
-  Serial.write(255);
+  Serial.write('f');
 }
 
 
@@ -415,17 +417,11 @@ void notifyFileEnd()
 void initialize()
 {
   dataFile = SD.open("profile.txt", FILE_WRITE);
-  Serial.println("profile.txt created! Device initialized");
   
-  // testing purpose only, to be deleted
-  dataFile.write(byte(3));
-  dataFile.write(',');
-  dataFile.write(byte(0));
-  dataFile.write('\r');
-  dataFile.write('\n');
-
-  state = 0x01;
+  delay(1000);
+  
   dataFile.close();
+  Serial.write('i');
 }
 
 bool isInitialized()
@@ -444,11 +440,9 @@ boolean createFile(byte userId)
   do 
   {
     sprintf(fileName, "%d_%d.txt", userId, index);
-    Serial.println(index);
     index += 1;
   } while (SD.exists(fileName));
 
-  Serial.println(fileName);
   dataFile = SD.open(fileName, FILE_WRITE);
   
   delay(1000);
@@ -481,7 +475,6 @@ void readAccel() {
   int z = (((int)_buff[5]) << 8) | _buff[4];
   
   sprintf(formattedData, "%d, %d, %d", x, y, z);
-  Serial.println(formattedData);
 }
 
 /*
@@ -527,41 +520,39 @@ bool readMsg()
 byte authenticateUser()
 {
   byte value;
-  
   sendCommandToFingerPrint(0x12, 0x01);        // turn on led
   if (!readMsg()) {
-    return false;
+    return 20;
   }
   
   sendCommandToFingerPrint(0x26, 0x00);
   if (!readMsg()) {
-    return 0;
+    return 20;
   }
   if (inData[8] == 0x31) {
-    return 0;
+    return 20;
   }
   if (inData[4] != 0) {
-    return 0;  
+    return 20;  
   }
   
   sendCommandToFingerPrint(0x60, 0x00);        // capture image
   if (!readMsg()) {
-    return 0;
+    return 20;
   }
   if (inData[8] == 0x31) {
-    return 0;
+    return 20;
   }
   
   sendCommandToFingerPrint(0x51, 0x00);
   if (!readMsg()) {
-    return 0;
+    return 20;
   }
   if (inData[8] == 0x31) {
-    return 0;
+    return 20;
   }
   sendCommandToFingerPrint(0x12, 0x00);        // turn off led
-
-  Serial.println(inData[4]);
+  
   return inData[4];
 }
 
@@ -642,14 +633,10 @@ bool regFingerprintSerial(byte id) {
 }
 
 void writeTo(byte address, byte val) {
-  Serial.println("1");
   Wire.beginTransmission(DEVICE); // start transmission to device 
-  Serial.println("2");
   Wire.write(address);             // send register address
   Wire.write(val);                 // send value to write
-  Serial.println("3");
-  int err = Wire.endTransmission();         // end transmission
-  Serial.println(err);
+  Wire.endTransmission();         // end transmission
 }
 
 // Reads num bytes starting from address register on device in to _buff array

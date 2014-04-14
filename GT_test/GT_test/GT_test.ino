@@ -22,7 +22,7 @@ void loop(){
     index = 0;
     while(Serial1.available() > 0){
       inChar = Serial1.read(); // Read a character
-      Serial.print(inChar, HEX);
+      Serial.println(inChar, HEX);
     }
    
   }
@@ -80,6 +80,46 @@ void communicate(int com, int val){
     case 57:
       value = 9;
       break;
+      
+    case 65:
+      value = 10;
+      break;
+    
+    case 66:
+      value = 11;
+      break;
+     
+    case 67:
+      value = 12;
+      break;
+      
+    case 68:
+      value = 13;
+      break;
+    
+    case 69:
+      value = 14;
+      break;
+      
+    case 70:
+      value = 15;
+      break;
+      
+    case 71:
+      value = 16;
+      break;
+      
+    case 72:
+      value = 17;
+      break;
+      
+    case 73:
+      value = 18;
+      break;
+      
+    case 74:
+      value = 19;
+      break;   
   }
   switch(com){
     // 0 > init > 01

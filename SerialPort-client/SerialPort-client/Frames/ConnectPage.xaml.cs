@@ -112,6 +112,7 @@ namespace SerialPort_client.Frames
 
                 if (this.deviceStatus == 'n')
                 {
+                    this.initializeDevice();
                     MessageBox.Show("This device is a brand new device and has been initialized. Please register users under this device.");
                 }
             }
@@ -480,6 +481,12 @@ namespace SerialPort_client.Frames
             port.Write(msg, 0, 1);
         }
 
+        private void initializeDevice()
+        {
+            this.lastCommand = 'i';
+            this.sendByte(Convert.ToByte('i'));
+        }
+
         // send a request to every available COM port
         private int checkPedometerConnection()
         {
@@ -525,6 +532,9 @@ namespace SerialPort_client.Frames
             makeConnection();
         }
 
+        /*
+         * convert string to byte array
+         */
         private static byte[] GetBytes(string str)
         {
             byte[] bytes = new byte[str.Length];
