@@ -63,20 +63,29 @@
                         VerticalAlignment="Stretch">
                 <TabItem Header="Step count" Name="tabStep" FontSize="14" >
                     <Grid>
-                        <Canvas Height="auto" Width="auto" Name="canvasStep"/>
-                        <Canvas Height="auto" Width="auto" Name="canvasStepAccu" Visibility="Hidden"/>
+                        <Canvas Height="200" Width="450" HorizontalAlignment="Center" 
+                                Name="canvasStep" VerticalAlignment="Center"/>
+                        <Canvas Height="200" Width="450" Name="canvasStepAccu" 
+                                Visibility="Hidden" HorizontalAlignment="Center"
+                                VerticalAlignment="Center"/>
                     </Grid>
                 </TabItem>
                 <TabItem Header="Distance" Name="tabDistance" FontSize="14" >
                     <Grid>
-                        <Canvas Height="auto" Width="auto" Name="canvasDistance"/>
-                        <Canvas Height="auto" Width="auto" Name="canvasDistanceAccu" Visibility="Hidden"/>
+                        <Canvas Height="200" Width="450" Name="canvasDistance" 
+                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <Canvas Height="200" Width="450" Name="canvasDistanceAccu" 
+                                Visibility="Hidden" HorizontalAlignment="Center"
+                                VerticalAlignment="Center"/>
                     </Grid>
                 </TabItem>
                 <TabItem Header="Calorie" Name="tabCalorie" FontSize="14" >
                     <Grid>
-                        <Canvas Height="auto" Width="auto" Name="canvasCalorie"/>
-                        <Canvas Height="auto" Width="auto" Name="canvasCalorieAccu" Visibility="Hidden"/>
+                        <Canvas Height="200" Width="450" Name="canvasCalorie" 
+                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <Canvas Height="200" Width="450" Name="canvasCalorieAccu" 
+                                Visibility="Hidden" HorizontalAlignment="Center"
+                                VerticalAlignment="Center"/>
                     </Grid>
                 </TabItem>
             </TabControl>

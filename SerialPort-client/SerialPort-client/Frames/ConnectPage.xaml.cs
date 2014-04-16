@@ -57,12 +57,6 @@ namespace SerialPort_client.Frames
             this.onDataReceived = new SerialDataReceivedEventHandler(port_DataReceived);
         }
 
-        // page loaded event
-        private void ConnectPage_Load(object sender, RoutedEventArgs e)
-        {
-            //this.makeConnection();
-        }
-
         // fill in comboboxes with options
         private void prefillComboBox()
         {
@@ -96,7 +90,7 @@ namespace SerialPort_client.Frames
 
         private void makeConnection()
         {
-            this.btnStart.IsEnabled = false;
+            //this.btnStart.IsEnabled = false;
             this.txtBlkStatus.Text = "Connecting";
             this.txtBlkStatus.Foreground = Brushes.Orange;
 
@@ -105,27 +99,37 @@ namespace SerialPort_client.Frames
             // TODO: change to data binding and style
             if (deviceStatus != 0)
             {
-                this.btnAddUser.IsEnabled = true;
-                this.btnSync.IsEnabled = true;
-                this.txtBlkStatus.Text = "Connected through " + port.PortName;
-                this.txtBlkStatus.Foreground = Brushes.Green;
+                this.showConnected();
 
                 if (this.deviceStatus == 'n')
                 {
                     this.initializeDevice();
-                    MessageBox.Show("This device is a brand new device and has been initialized. Please register users under this device.");
                 }
             }
             else
             {
-                this.btnAddUser.IsEnabled = false;
-                this.btnSync.IsEnabled = false;
-                this.btnStart.IsEnabled = true;
-                this.txtBlkStatus.Text = "Not connected";
-                this.txtBlkStatus.Foreground = Brushes.Red;
+                this.showDisconnected();
 
                 MessageBox.Show("No device is detected.");
             }
+        }
+
+        private void showConnected()
+        {
+            this.btnAddUser.IsEnabled = true;
+            this.btnSync.IsEnabled = true;
+            this.txtBlkStatus.Text = "Connected through " + port.PortName;
+            this.txtBlkStatus.Foreground = Brushes.Green;
+            this.btnStart.Style = this.Resources["DisconnectButton"] as Style;
+        }
+
+        private void showDisconnected()
+        {
+            this.btnAddUser.IsEnabled = false;
+            this.btnSync.IsEnabled = false;
+            this.txtBlkStatus.Text = "Not connected";
+            this.txtBlkStatus.Foreground = Brushes.Red;
+            this.btnStart.Style = this.Resources["ConnectButton"] as Style;
         }
 
         private void processData(int userId, int sessionIndex)
@@ -529,7 +533,25 @@ namespace SerialPort_client.Frames
 
         private void btnStart_Click(object sender, RoutedEventArgs e)
         {
-            makeConnection();
+            string buttonContent = this.btnStart.Content as string;
+            if (buttonContent == "Connect")
+            {
+                this.makeConnection();
+            }
+            else
+            {
+                // send connection termination signal and close serial port
+                this.stopConnection();
+                this.port.Close();
+                this.port = null;
+            }
+        }
+
+        private void stopConnection()
+        {
+            this.sendByte(Convert.ToByte('e'));
+
+            this.showDisconnected();
         }
 
         /*
@@ -554,6 +576,13 @@ namespace SerialPort_client.Frames
             int byteReceived = port.ReadByte();
             switch (this.lastCommand)
             {
+                case 'i':
+                    if (byteReceived == 'i')
+                    {
+                        MessageBox.Show("This device is a brand new device and has been initialized. Please register users under this device.");
+                    }
+
+                    break;
                 case 'n':                                   // get number of new files command
                     this.totalNumOfFiles = byteReceived;
                     this.curNumOfFiles = 0;
@@ -736,6 +765,12 @@ namespace SerialPort_client.Frames
         {
             if (NavigationService.CanGoBack)
             {
+                if (null != this.port)
+                {
+                    this.stopConnection();
+                    this.port.Close();
+                    this.port = null;
+                }
                 NavigationService.GoBack();
             }
         }

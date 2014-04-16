@@ -46,6 +46,8 @@ byte state = 0x00;
 
 // time in millis when authentication is performed
 long lastCheckedMillis = 0;
+long curMillis;
+byte curUser = 20;
 
 
 char inData[20]; // Allocate some space for the string
@@ -65,6 +67,36 @@ void dealarm()
   noTone(PWMPORT);
 }
 
+// produce unsuccessful fingerprint sound
+void unsuccessSound()
+{
+  delay(100);
+  tone(PWMPORT, 659, 200);
+  delay(100);
+  tone(PWMPORT, 523, 200);
+  delay(100);
+  tone(PWMPORT, 440, 200);
+  delay(100);
+  noTone(PWMPORT);
+}
+
+// produce successful fingerprint sound
+void successSound()
+{
+  delay(100);
+  tone(PWMPORT, 440, 200);
+  delay(100);
+  tone(PWMPORT, 493, 200);
+  delay(100);
+  tone(PWMPORT, 523, 200);
+  delay(100);
+  tone(PWMPORT, 587, 200);
+  delay(100);
+  tone(PWMPORT, 659, 200);
+  delay(100);
+  noTone(PWMPORT);
+}
+
 void setup()
 {
   // for debug use only
@@ -74,26 +106,26 @@ void setup()
   pinMode(SD_CS, OUTPUT);                 // Set pin 18 as output (SD card CS)
  
   Serial.begin(115200);                     // This pipes to the serial monitor
-  Serial.println("USB serial connection established.");
+  // Serial.println("USB serial connection established.");
   
   Serial1.begin(9600);                    // Set up fingerprint sensor interface
  
   // Initialize I2C interface
   Wire.begin();
-  Serial.println("I2C connection established.");
+  // Serial.println("I2C connection established.");
     
   if (!SD.begin(SD_CS)) {
-    Serial.println("SD card SPI initialization failed!");
-    //return;
+    // Serial.println("SD card SPI initialization failed!");
+    return;
   }
-  Serial.println("SD card SPI connection established.");
+  // Serial.println("SD card SPI connection established.");
  
   // Put the ADXL345 into +/- 4G range by writing the value 0x01 to the DATA_FORMAT register.
   writeTo(DATA_FORMAT, 0x01);
-  Serial.println("data format");
+  // Serial.println("data format");
   // Put the ADXL345 into Measurement Mode by writing 0x08 to the POWER_CTL register.
   writeTo(POWER_CTL, 0x08);
-  Serial.println("Accelerometer configured.");
+  // Serial.println("Accelerometer configured.");
 }
 
 void loop()
@@ -116,6 +148,9 @@ void loop()
           break;
         case 'd':                       // request for data synchronization
           transferNewData();
+          break;
+        case 'e':                       // terminate connection
+          terminateConnection();        
           break;
         case 'n':
           countNewFiles();              // return the number of new files
@@ -148,17 +183,24 @@ void loop()
        alarm();
        byte id = authenticateUser();
        //Serial.println(id);
-       if (id != 20) {                           // if id is non zero, user has been authen
+       if (id < 20) {                           // if id is non zero, user has been authen
          dealarm();
-         if(!createFile(id)) {
-           Serial.println("SD card create data file failed!");
-           return;
+         successSound();
+         curMillis = millis();
+         lastCheckedMillis = curMillis;
+         // Serial.println("user detected");
+         // Serial.println(id);
+         if (curUser != id) {
+           if(!createFile(id)) {
+             // Serial.println("created file");
+             return;
+           }
+           curUser = id;
          }
-         Serial.print("SD card data file created at: ");
-         Serial.println(fileName);
-         
          state = 0x02;                          // start recording
-         
+       }
+       if (id == 21) {                          // no fingerprint match
+         unsuccessSound();
        }
     }
     else if (state == 0x02) {                      // recording
@@ -171,6 +213,12 @@ void loop()
   }
 }
 
+void terminateConnection()
+{
+  curUser = 20;
+  state = 0x00;
+}
+
 void clearHistory()
 {
   SD.remove("profile.txt");
@@ -178,9 +226,9 @@ void clearHistory()
 
 bool checkDeadline()
 {
-  long curMillis = millis();
+  curMillis = millis();
 
-  if (curMillis - lastCheckedMillis > 300000)
+  if (curMillis - lastCheckedMillis > 10000)
   {
     return true;
   }
@@ -269,6 +317,7 @@ void checkConnection()
   {
     state = 0x10;                // change the state into "connected"
     dealarm();                   // in case no fingerprint is scanned
+    turnOffLED();
     if (isInitialized())
     {
       Serial.write('o');
@@ -491,6 +540,7 @@ bool readMsg()
   for (i = 0; i < 12; ++i) {
     while (!Serial1.available()) {}
     inChar = Serial1.read();
+    // Serial.println(inChar, HEX);
     inData[i] = inChar;
     
     if (i == 0 && inChar != 0x55) {
@@ -549,11 +599,22 @@ byte authenticateUser()
     return 20;
   }
   if (inData[8] == 0x31) {
-    return 20;
+    return 21;
   }
-  sendCommandToFingerPrint(0x12, 0x00);        // turn off led
+  if (inData[5] == 0x10 && inData[4] == 0x12) {
+    return 21;
+  }
   
-  return inData[4];
+  value = inData[4];
+  sendCommandToFingerPrint(0x12, 0x00);        // turn off led
+  readMsg();
+  
+  return value;
+}
+
+void turnOffLED() {
+  sendCommandToFingerPrint(0x12, 0x00);        // turn off led
+  readMsg();
 }
 
 bool regFingerprintSerial(byte id) {
@@ -629,6 +690,7 @@ bool regFingerprintSerial(byte id) {
     return false;
   }
   sendCommandToFingerPrint(0x12, 0x00);        // turn off led
+  readMsg();
   return true;
 }
 

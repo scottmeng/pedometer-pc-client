@@ -30,48 +30,11 @@ namespace SerialPort_client.Frames
         {
             InitializeComponent();
 
-            //string conString = Properties.Settings.Default.exerciseDataConnectionString;
-            
+            this.loadUsers();
+        }
 
-            /*
-            // Open the connection using the connection string.
-            using (SqlCeConnection con = new SqlCeConnection(conString))
-            {
-                con.Open();
-
-                // Insert into the SqlCe table. ExecuteNonQuery is best for inserts.
-                using (SqlCeCommand com = new SqlCeCommand("INSERT INTO Users (name, age, height, gender) VALUES (@name, @age, @height, @gender)", con))
-                {
-                    com.Parameters.AddWithValue("@name", "Scott");
-                    com.Parameters.AddWithValue("@age", 23);
-                    com.Parameters.AddWithValue("@height", 174);
-                    com.Parameters.AddWithValue("@gender", "male");
-                    com.ExecuteNonQuery();
-                }
-            }
-            */
-
-            /*
-            // Open the connection using the connection string.
-            using (SqlCeConnection con = new SqlCeConnection(conString))
-            {
-                con.Open();
-
-                // Insert into the SqlCe table. ExecuteNonQuery is best for inserts.
-                using (SqlCeCommand com = new SqlCeCommand("INSERT INTO History (uid, date, hid, min, steps, distance, calories) VALUES (@uid, @date, @index, @min, @steps, @distance, @calories)", con))
-                {
-                    com.Parameters.AddWithValue("@uid", 2);
-                    com.Parameters.AddWithValue("@date", DateTime.Now);
-                    com.Parameters.AddWithValue("@index", 0);
-                    com.Parameters.AddWithValue("@min", 5);
-                    com.Parameters.AddWithValue("@steps", 110);
-                    com.Parameters.AddWithValue("@distance", 3322);
-                    com.Parameters.AddWithValue("@calories", 32);
-                    com.ExecuteNonQuery();
-                }
-            }
-            */
-
+        private void loadUsers()
+        {
             // Open the connection using the connection string.
             using (SqlCeConnection newCon = new SqlCeConnection(conString))
             {
@@ -81,7 +44,7 @@ namespace SerialPort_client.Frames
                 {
                     List<User> users = new List<User>();
                     SqlCeDataReader reader = com.ExecuteReader();
-                    while (reader.Read()) 
+                    while (reader.Read())
                     {
                         int id = reader.GetInt32(0);
                         string name = reader.GetString(1);
@@ -91,13 +54,12 @@ namespace SerialPort_client.Frames
                         int weight = reader.GetInt32(5);
 
                         User user = new User(id, name, gender, age, height, weight);
-                        users.Add(user); 
+                        users.Add(user);
                     }
 
                     this.lstBoxUser.ItemsSource = users;
                 }
             }
-            
         }
 
         private void lstBoxHistory_PreviewMouseDown(object sender, MouseButtonEventArgs e)
@@ -156,7 +118,7 @@ namespace SerialPort_client.Frames
             double sum = 0;
             foreach (History record in records)
             {
-                double x = record.Min / width * 300 + 20;
+                double x = (record.Min - 1) / width * 380;
                 switch (mode)
                 {
                     case 1:
@@ -171,7 +133,7 @@ namespace SerialPort_client.Frames
                     default:
                         break;
                 }
-                double y = (height - sum) / height * 100 + 40;
+                double y = (height - sum) / height * 180 + 20;
                 Point point = new Point(x, y);
                 points.Add(point);
 
@@ -181,7 +143,7 @@ namespace SerialPort_client.Frames
                 textBlock.Foreground = new SolidColorBrush(color);
                 textBlock.FontSize = 10;
                 Canvas.SetLeft(textBlock, x);
-                Canvas.SetBottom(textBlock, sum / height * 100 + 45);
+                Canvas.SetBottom(textBlock, sum / height * 180 + 10);
                 canvas.Children.Add(textBlock);
 
                 // add point
@@ -193,7 +155,7 @@ namespace SerialPort_client.Frames
                 ellipse.Width = 4;
                 ellipse.Height = 4;
                 Canvas.SetLeft(ellipse, x);
-                Canvas.SetBottom(ellipse, sum / height * 100 + 35);
+                Canvas.SetBottom(ellipse, sum / height * 180);
                 canvas.Children.Add(ellipse);
             }
 
@@ -206,10 +168,10 @@ namespace SerialPort_client.Frames
             // add bar
             Rectangle rect = new Rectangle();
             rect.Fill = new SolidColorBrush(color);
-            rect.Width = 240 / (double) width;
-            rect.Height = 100 * y / height;
-            Canvas.SetLeft(rect, 20 + x * 300 / (double) width);
-            Canvas.SetBottom(rect, 40);
+            rect.Width = 280 / (double) width;
+            rect.Height = 140 * y / height;
+            Canvas.SetLeft(rect, (x - 1) * 380 / (double) width);
+            Canvas.SetBottom(rect, 20);
             canvas.Children.Add(rect);
 
             // add textblock
@@ -217,8 +179,8 @@ namespace SerialPort_client.Frames
             textBlock.Text = y.ToString("0.#");
             textBlock.FontSize = 10;
             textBlock.Foreground = new SolidColorBrush(color);
-            Canvas.SetLeft(textBlock, 20 + x * 300 / (double)width);
-            Canvas.SetBottom(textBlock, 45 + 100 * y / height);
+            Canvas.SetLeft(textBlock, (x - 1) * 380 / (double)width);
+            Canvas.SetBottom(textBlock, 20 + 140 * y / height);
             canvas.Children.Add(textBlock);
         }
 
