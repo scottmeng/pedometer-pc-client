@@ -85,7 +85,10 @@ namespace SerialPort_client.Frames
             }
 
             this.cmBoxUsers.ItemsSource = users;
-            this.cmBoxUsers.SelectedItem = users.Last();
+            if (users.Count > 0)
+            {
+                this.cmBoxUsers.SelectedItem = users.Last();
+            }
         }
 
         private void makeConnection()
@@ -765,13 +768,17 @@ namespace SerialPort_client.Frames
         {
             if (NavigationService.CanGoBack)
             {
-                if (null != this.port)
-                {
-                    this.stopConnection();
-                    this.port.Close();
-                    this.port = null;
-                }
                 NavigationService.GoBack();
+            }
+        }
+
+        private void connectPage_Unloaded(object sender, RoutedEventArgs e)
+        {
+            if (null != this.port)
+            {
+                this.stopConnection();
+                this.port.Close();
+                this.port = null;
             }
         }
     }
