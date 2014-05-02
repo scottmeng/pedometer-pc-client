@@ -208,7 +208,6 @@ void loop()
         state = 0x01;                             // change to initialized state
       }
       readAccel();
-      writeData(millis(), formattedData);
     }
   }
 }
@@ -504,15 +503,6 @@ boolean createFile(byte userId)
   return false;
 }
 
-void writeData(long timeStamp, char data[])
-{
-  char record[256];
-  sprintf(record, "%ld, %s", timeStamp, data);
-  dataFile = SD.open(fileName, FILE_WRITE);
-  dataFile.println(record);
-  dataFile.close();
-}
-
 void readAccel() {
   uint8_t howManyBytesToRead = 6;
   
@@ -523,7 +513,11 @@ void readAccel() {
   int y = (((int)_buff[3]) << 8) | _buff[2];
   int z = (((int)_buff[5]) << 8) | _buff[4];
   
-  sprintf(formattedData, "%d, %d, %d", x, y, z);
+  sprintf(formattedData, "%ld,%d,%d,%d", millis(), x, y, z);
+
+  dataFile = SD.open(fileName, FILE_WRITE);
+  dataFile.println(formattedData);
+  dataFile.close();
 }
 
 /*
