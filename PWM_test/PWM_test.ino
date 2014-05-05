@@ -258,7 +258,7 @@ void addNewUser()
   while (!Serial.available()){}
 
   uid = Serial.read();
-  //Serial.write(uid);
+  // Serial.println(uid);
   recordNewUser(uid);
 }
 
@@ -641,6 +641,7 @@ bool regFingerprintSerial(byte id) {
     }
     value = inData[4];
   }
+  // Serial.println("=====");
   sendCommandToFingerPrint(0x60, 0x00);        // capture first image
   if (!readMsg()) {
     return false;

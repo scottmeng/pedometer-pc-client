@@ -109,12 +109,12 @@
                            VerticalAlignment="Center" Margin="10"/>
             </Border>
         </Popup>
-        <Popup Name="popUpTransferData" Height="120" Width="300" Placement="Center">
+        <Popup Name="popUpTransferData" Height="160" Width="300" Placement="Center">
             <Border BorderBrush="Black" BorderThickness="2" VerticalAlignment="Stretch" 
                     HorizontalAlignment="Stretch">
                 <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="1.5*"/>
+                        <RowDefinition Height="2*"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
                     <Border Background="AntiqueWhite" BorderBrush="AntiqueWhite"

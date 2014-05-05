@@ -118,7 +118,7 @@ namespace SerialPort_client.Frames
             double sum = 0;
             foreach (History record in records)
             {
-                double x = (record.Min - 1) / width * 380;
+                double x = (record.Min - 1) / width * 380 + 40;
                 switch (mode)
                 {
                     case 1:
@@ -170,7 +170,7 @@ namespace SerialPort_client.Frames
             rect.Fill = new SolidColorBrush(color);
             rect.Width = 280 / (double) width;
             rect.Height = 140 * y / height;
-            Canvas.SetLeft(rect, (x - 1) * 380 / (double) width);
+            Canvas.SetLeft(rect, (x - 1) * 380 / (double) width + 40);
             Canvas.SetBottom(rect, 20);
             canvas.Children.Add(rect);
 
@@ -179,7 +179,7 @@ namespace SerialPort_client.Frames
             textBlock.Text = y.ToString("0.#");
             textBlock.FontSize = 10;
             textBlock.Foreground = new SolidColorBrush(color);
-            Canvas.SetLeft(textBlock, (x - 1) * 380 / (double)width);
+            Canvas.SetLeft(textBlock, (x - 1) * 380 / (double)width + 40);
             Canvas.SetBottom(textBlock, 20 + 140 * y / height);
             canvas.Children.Add(textBlock);
         }

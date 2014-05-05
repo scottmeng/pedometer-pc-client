@@ -149,10 +149,14 @@ namespace SerialPort_client.Frames
 
                 if (parts.Length == 4)
                 {
-                    timestamp = Convert.ToInt32(parts[0]);
-                    x_acc = Convert.ToInt32(parts[1]);
-                    y_acc = Convert.ToInt32(parts[2]);
-                    z_acc = Convert.ToInt32(parts[3]);  
+                    try
+                    {
+                        timestamp = Convert.ToInt32(parts[0]);
+                        x_acc = Convert.ToInt32(parts[1]);
+                        y_acc = Convert.ToInt32(parts[2]);
+                        z_acc = Convert.ToInt32(parts[3]);
+                    }
+                    catch { }
                 }
                 else
                 {
